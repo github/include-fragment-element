@@ -1,0 +1,19 @@
+{
+  "name": "deferred-content",
+  "version": "0.0.1",
+  "main": "deferred-content.js",
+  "devDependencies": {
+    "CustomElements": "0.2.3",
+    "es5-basic-shim": "1.0.6",
+    "MutationObserver": "0.2.0",
+    "qunit": "1.14.0"
+  },
+  "ignore": [
+    ".*",
+    "*.md",
+    "examples/",
+    "Makefile",
+    "package.json",
+    "test/"
+  ]
+}

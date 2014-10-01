@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/polymer/0.2.2/platform.js"></script>
+  <script src="../deferred-content.js"></script>
+  <style>
+    deferred-content {
+      display: block;
+    }
+    .error {
+      background: #d00;
+    }
+  </style>
+</head>
+<body>
+  <deferred-content url="https://github.com/users/hubot/contributions/sample">
+    <p>Loading…</p>
+  </deferred-content>
+
+  <deferred-content url="http://127.0.0.2/">
+    <p>Loading…</p>
+  </deferred-content>
+</body>
+</html>
