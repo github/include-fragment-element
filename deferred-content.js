@@ -2,6 +2,11 @@
   'use strict';
 
   function poll(el, wait) {
+    var url = el.getAttribute('url')
+    if (!url) {
+      return
+    }
+
     var xhr = new XMLHttpRequest()
 
     xhr.onload = function() {
@@ -31,7 +36,7 @@
     }
 
     xhr.timeout = 5 * 1000
-    xhr.open('GET', el.getAttribute('url'))
+    xhr.open('GET', url)
     xhr.send(null)
     return xhr
   }
