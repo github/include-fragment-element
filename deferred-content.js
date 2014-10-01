@@ -8,7 +8,6 @@
     }
 
     var xhr = new XMLHttpRequest()
-
     xhr.onload = function() {
       switch (xhr.status) {
         case 200:
@@ -59,7 +58,7 @@
     }
 
     if (this._pollId) {
-      window.clearInterval(this._pollId)
+      window.clearTimeout(this._pollId)
       this._pollId = null
     }
   }
