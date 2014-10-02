@@ -18,7 +18,7 @@ This component is built on the [Web Component](http://webcomponents.org/) stack.
 
 ## Usage
 
-All `deferred-content` elements must have a `url` attribute from which to retrieve an HTML element fragment.
+All `deferred-content` elements must have a `src` attribute from which to retrieve an HTML element fragment.
 
 The initial page load must contain a `deferred-content` element with markup to be displayed while the deferred content is building on the server.
 
@@ -26,7 +26,7 @@ The initial page load must contain a `deferred-content` element with markup to b
 
 ``` html
 <div class="some-container">
-  <deferred-content url="/users/hubot/contributions">
+  <deferred-content src="/users/hubot/contributions">
     <p>Loading…</p>
   </deferred-content>
 </div>
@@ -56,7 +56,7 @@ If the URL fails to load, the `deferred-content` element is left in the page and
 
 Attribute      | Options                        | Description
 ---            | ---                            | ---
-`url`          | URL string                     | Required URL from which to load the replacement HTML element fragment.
+`src`          | URL string                     | Required URL from which to load the replacement HTML element fragment.
 
 ## Patterns
 

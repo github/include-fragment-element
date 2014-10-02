@@ -48,7 +48,7 @@ asyncTest('makes an xhr request when attached', function() {
   })
 
   var div = document.createElement('div')
-  div.innerHTML = '<deferred-content url="/test">loading</deferred-content>'
+  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
   document.body.appendChild(div)
 })
 
@@ -65,7 +65,7 @@ asyncTest('replaces element on 200 status', function() {
   })
 
   var div = document.createElement('div')
-  div.innerHTML = '<deferred-content url="/test">loading</deferred-content>'
+  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
   document.body.appendChild(div)
 })
 
@@ -81,7 +81,7 @@ asyncTest('adds error class on 500 status', function() {
   })
 
   var div = document.createElement('div')
-  div.innerHTML = '<deferred-content url="/test">loading</deferred-content>'
+  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
   document.body.appendChild(div)
 })
 
@@ -97,7 +97,7 @@ asyncTest('adds error class on xhr error', function() {
   })
 
   var div = document.createElement('div')
-  div.innerHTML = '<deferred-content url="/test">loading</deferred-content>'
+  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
   document.body.appendChild(div)
 })
 
@@ -115,6 +115,6 @@ asyncTest('adds timeout class on xhr timeout', function() {
   })
 
   var div = document.createElement('div')
-  div.innerHTML = '<deferred-content url="/test">loading</deferred-content>'
+  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
   document.body.appendChild(div)
 })

@@ -2,7 +2,7 @@
   'use strict';
 
   function poll(el, wait) {
-    var url = el.getAttribute('url')
+    var url = el.getAttribute('src')
     if (!url) {
       return
     }
