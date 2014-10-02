@@ -12,7 +12,7 @@
       switch (xhr.status) {
         case 200:
           el.insertAdjacentHTML('afterend', xhr.responseText)
-          el.remove()
+          el.parentNode.removeChild(el)
           break
         case 202:
         case 404:
