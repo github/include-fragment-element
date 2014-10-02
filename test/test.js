@@ -69,6 +69,24 @@ asyncTest('replaces element on 200 status', function() {
   document.body.appendChild(div)
 })
 
+asyncTest('replaces with several new elements on 200 status', function() {
+  var observer = observe('deferred-content', function() {
+    observer.disconnect()
+    start()
+
+    var request = MockXHR.requests[0]
+    request.respond(200, '<p id="one">one</p><p id="two">two</p>')
+
+    equal(document.querySelector('deferred-content'), null)
+    equal(document.querySelector('#one').textContent, 'one')
+    equal(document.querySelector('#two').textContent, 'two')
+  })
+
+  var div = document.createElement('div')
+  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
+  document.body.appendChild(div)
+})
+
 asyncTest('adds is-error class on 500 status', function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()

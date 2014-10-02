@@ -11,9 +11,8 @@
     xhr.onload = function() {
       switch (xhr.status) {
         case 200:
-          var container = document.createElement('div')
-          container.innerHTML = xhr.responseText
-          el.parentNode.replaceChild(container.firstChild, el)
+          el.insertAdjacentHTML('afterend', xhr.responseText)
+          el.remove()
           break
         case 202:
         case 404:
