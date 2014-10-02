@@ -69,7 +69,7 @@ asyncTest('replaces element on 200 status', function() {
   document.body.appendChild(div)
 })
 
-asyncTest('adds error class on 500 status', function() {
+asyncTest('adds is-error class on 500 status', function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
@@ -77,7 +77,7 @@ asyncTest('adds error class on 500 status', function() {
     var request = MockXHR.requests[0]
     request.respond(500, 'boom')
 
-    ok(document.querySelector('deferred-content').classList.contains('error'))
+    ok(document.querySelector('deferred-content').classList.contains('is-error'))
   })
 
   var div = document.createElement('div')
@@ -85,7 +85,7 @@ asyncTest('adds error class on 500 status', function() {
   document.body.appendChild(div)
 })
 
-asyncTest('adds error class on xhr error', function() {
+asyncTest('adds is-error class on xhr error', function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
@@ -93,7 +93,7 @@ asyncTest('adds error class on xhr error', function() {
     var request = MockXHR.requests[0]
     request.error()
 
-    ok(document.querySelector('deferred-content').classList.contains('error'))
+    ok(document.querySelector('deferred-content').classList.contains('is-error'))
   })
 
   var div = document.createElement('div')
@@ -110,8 +110,8 @@ asyncTest('adds timeout class on xhr timeout', function() {
     request.slow()
 
     var el = document.querySelector('deferred-content')
-    ok(el.classList.contains('error'))
-    ok(el.classList.contains('timeout'))
+    ok(el.classList.contains('is-error'))
+    ok(el.classList.contains('is-timeout'))
   })
 
   var div = document.createElement('div')
