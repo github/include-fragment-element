@@ -118,21 +118,3 @@ asyncTest('adds is-error class on xhr error', function() {
   div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
   document.body.appendChild(div)
 })
-
-asyncTest('adds timeout class on xhr timeout', function() {
-  var observer = observe('deferred-content', function() {
-    observer.disconnect()
-    start()
-
-    var request = MockXHR.requests[0]
-    request.slow()
-
-    var el = document.querySelector('deferred-content')
-    ok(el.classList.contains('is-error'))
-    ok(el.classList.contains('is-timeout'))
-  })
-
-  var div = document.createElement('div')
-  div.innerHTML = '<deferred-content src="/test">loading</deferred-content>'
-  document.body.appendChild(div)
-})

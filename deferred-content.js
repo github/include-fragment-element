@@ -29,12 +29,7 @@
       el.classList.add('is-error')
     }
 
-    xhr.ontimeout = function() {
-      el.classList.add('is-error', 'is-timeout')
-    }
-
     xhr.open('GET', url)
-    xhr.timeout = 5 * 1000
     xhr.send(null)
     return xhr
   }
