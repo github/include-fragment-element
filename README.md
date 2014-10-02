@@ -50,7 +50,7 @@ If the URL returns a 202 Accepted or 404 Not Found HTTP status code, the `deferr
 
 ### Errors
 
-If the URL fails to load, the `deferred-content` element is left in the page and tagged with an `error` CSS class that can be used for styling. No additional polling requests are made to the URL after an error occurs.
+If the URL fails to load, the `deferred-content` element is left in the page and tagged with an `is-error` CSS class that can be used for styling. No additional polling requests are made to the URL after an error occurs.
 
 ### Options
 

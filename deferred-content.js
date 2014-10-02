@@ -21,17 +21,17 @@
           el._pollId = window.setTimeout(retry, wait)
           break
         default:
-          el.classList.add('error')
+          el.classList.add('is-error')
           break
       }
     }
 
     xhr.onerror = function() {
-      el.classList.add('error')
+      el.classList.add('is-error')
     }
 
     xhr.ontimeout = function() {
-      el.classList.add('error', 'timeout')
+      el.classList.add('is-error', 'is-timeout')
     }
 
     xhr.timeout = 5 * 1000
