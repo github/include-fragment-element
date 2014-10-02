@@ -34,8 +34,8 @@
       el.classList.add('is-error', 'is-timeout')
     }
 
-    xhr.timeout = 5 * 1000
     xhr.open('GET', url)
+    xhr.timeout = 5 * 1000
     xhr.send(null)
     return xhr
   }
