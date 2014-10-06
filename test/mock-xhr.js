@@ -1,5 +1,4 @@
 function MockXHR() {
-  MockXHR.requests.push(this)
   this.method = null
   this.url = null
   this.data = null
@@ -9,7 +8,7 @@ function MockXHR() {
   this.responseText = null
 }
 
-MockXHR.requests = []
+MockXHR.responses = {}
 
 MockXHR.prototype.open = function(method, url) {
   this.method = method
@@ -20,8 +19,25 @@ MockXHR.prototype.setRequestHeader = function (name, value) {
   this.headers[name] = value
 }
 
+var origin = (function() {
+  var link = document.createElement('a')
+  link.href = '/'
+  return link.href
+})()
+
 MockXHR.prototype.send = function(data) {
   this.data = data
+
+  var xhr = this
+  setTimeout(function() {
+    var path = xhr.url.replace(origin, '/')
+    var handle = MockXHR.responses[path]
+    if (handle) {
+      handle(xhr)
+    } else {
+      console.warn('missing mocked response', path)
+    }
+  }, 100);
 }
 
 MockXHR.prototype.respond = function(status, body) {
