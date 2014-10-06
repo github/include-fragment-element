@@ -35,7 +35,7 @@ test('create from constructor', function() {
   equal('DEFERRED-CONTENT', el.nodeName)
 })
 
-asyncTest('makes an xhr request when attached', function() {
+asyncTest('makes an xhr request when attached', 3, function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
@@ -52,7 +52,7 @@ asyncTest('makes an xhr request when attached', function() {
   document.getElementById('qunit-fixture').appendChild(div)
 })
 
-asyncTest('replaces element on 200 status', function() {
+asyncTest('replaces element on 200 status', 2, function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
@@ -69,7 +69,7 @@ asyncTest('replaces element on 200 status', function() {
   document.getElementById('qunit-fixture').appendChild(div)
 })
 
-asyncTest('replaces with several new elements on 200 status', function() {
+asyncTest('replaces with several new elements on 200 status', 3, function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
@@ -87,7 +87,7 @@ asyncTest('replaces with several new elements on 200 status', function() {
   document.getElementById('qunit-fixture').appendChild(div)
 })
 
-asyncTest('adds is-error class on 500 status', function() {
+asyncTest('adds is-error class on 500 status', 1, function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
@@ -103,7 +103,7 @@ asyncTest('adds is-error class on 500 status', function() {
   document.getElementById('qunit-fixture').appendChild(div)
 })
 
-asyncTest('adds is-error class on xhr error', function() {
+asyncTest('adds is-error class on xhr error', 1, function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
     start()
