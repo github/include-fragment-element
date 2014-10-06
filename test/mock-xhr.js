@@ -35,7 +35,7 @@ MockXHR.prototype.send = function(data) {
     if (handle) {
       handle(xhr)
     } else {
-      console.warn('missing mocked response', path)
+      throw 'missing mocked response: ' + path
     }
   }, 100);
 }
