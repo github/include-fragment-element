@@ -5,6 +5,7 @@
   "devDependencies": {
     "CustomElements": "0.2.3",
     "es5-basic-shim": "1.0.6",
+    "es6-promise": "1.0.0",
     "MutationObserver": "0.2.0",
     "qunit": "1.14.0"
   },
