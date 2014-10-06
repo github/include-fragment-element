@@ -2,7 +2,7 @@
   'use strict';
 
   function poll(el, wait) {
-    var url = el.getAttribute('src')
+    var url = el.src
     if (!url) {
       return
     }
@@ -35,6 +35,22 @@
   }
 
   var DeferredContentPrototype = Object.create(window.HTMLElement.prototype)
+
+  Object.defineProperty(DeferredContentPrototype, 'src', {
+    get: function() {
+      var src = this.getAttribute('src')
+      if (src) {
+        var link = this.ownerDocument.createElement('a')
+        link.href = src
+        return link.href
+      } else {
+        return ''
+      }
+    },
+    set: function(value) {
+      this.setAttribute('src', value)
+    }
+  })
 
   DeferredContentPrototype.createdCallback = function() {
     this._xhr = null
