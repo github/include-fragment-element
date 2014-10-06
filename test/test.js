@@ -35,6 +35,18 @@ test('create from constructor', function() {
   equal('DEFERRED-CONTENT', el.nodeName)
 })
 
+test('src property', function() {
+  var el = document.createElement('deferred-content')
+  equal(null, el.getAttribute('src'))
+  equal('', el.src)
+
+  el.src = 'content.html'
+  equal('content.html', el.getAttribute('src'))
+  var link = document.createElement('a')
+  link.href = 'content.html'
+  equal(link.href, el.src)
+})
+
 asyncTest('makes an xhr request when attached', 3, function() {
   var observer = observe('deferred-content', function() {
     observer.disconnect()
@@ -44,7 +56,7 @@ asyncTest('makes an xhr request when attached', 3, function() {
 
     var request = MockXHR.requests[0]
     equal('GET', request.method)
-    equal('/test', request.url)
+    ok(request.url.match(/\/test/))
   })
 
   var div = document.createElement('div')
