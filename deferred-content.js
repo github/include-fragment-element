@@ -3,10 +3,26 @@
 
   var DeferredContentPrototype = Object.create(window.HTMLElement.prototype)
 
+  Object.defineProperty(DeferredContentPrototype, 'src', {
+    get: function() {
+      var src = this.getAttribute('src')
+      if (src) {
+        var link = this.ownerDocument.createElement('a')
+        link.href = src
+        return link.href
+      } else {
+        return ''
+      }
+    },
+    set: function(value) {
+      this.setAttribute('src', value)
+    }
+  })
+
   DeferredContentPrototype.attachedCallback = function() {
     var self = this
 
-    var url = self.getAttribute('src')
+    var url = self.src
     if (!url) {
       return
     }
