@@ -1,39 +1,6 @@
 (function() {
   'use strict';
 
-  function poll(el, wait) {
-    var url = el.src
-    if (!url) {
-      return
-    }
-
-    var xhr = new XMLHttpRequest()
-    xhr.onload = function() {
-      switch (xhr.status) {
-        case 200:
-          el.insertAdjacentHTML('afterend', xhr.responseText)
-          el.parentNode.removeChild(el)
-          break
-        case 202:
-        case 404:
-          var retry = poll.bind(this, el, wait * 1.5)
-          el._pollId = window.setTimeout(retry, wait)
-          break
-        default:
-          el.classList.add('is-error')
-          break
-      }
-    }
-
-    xhr.onerror = function() {
-      el.classList.add('is-error')
-    }
-
-    xhr.open('GET', url)
-    xhr.send(null)
-    return xhr
-  }
-
   var DeferredContentPrototype = Object.create(window.HTMLElement.prototype)
 
   Object.defineProperty(DeferredContentPrototype, 'src', {
@@ -52,25 +19,54 @@
     }
   })
 
-  DeferredContentPrototype.createdCallback = function() {
-    this._xhr = null
-    this._pollId = null
-  }
-
   DeferredContentPrototype.attachedCallback = function() {
-    this._xhr = poll(this, 1000)
+    var self = this
+
+    var url = self.src
+    if (!url) {
+      return
+    }
+
+    self.fetch(url).then(function(html) {
+      self.insertAdjacentHTML('afterend', html)
+      self.parentNode.removeChild(self)
+    }, function() {
+      self.classList.add('is-error')
+    })
   }
 
-  DeferredContentPrototype.detachedCallback = function() {
-    if (this._xhr) {
-      this._xhr.abort()
-      this._xhr = null
-    }
+  DeferredContentPrototype.fetch = function(url) {
+    return new Promise(function(resolve, reject) {
+      function poll(wait) {
+        var xhr = new XMLHttpRequest()
 
-    if (this._pollId) {
-      window.clearTimeout(this._pollId)
-      this._pollId = null
-    }
+        xhr.onload = function() {
+          switch (xhr.status) {
+            case 200:
+              resolve(xhr.responseText)
+              break
+            case 202:
+            case 404:
+              window.setTimeout(function() {
+                poll(wait * 1.5)
+              }, wait)
+              break
+            default:
+              reject()
+              break
+          }
+        }
+
+        xhr.onerror = function() {
+          reject()
+        }
+
+        xhr.open('GET', url)
+        xhr.send(null)
+      }
+
+      poll(1000)
+    })
   }
 
   window.DeferredContentElement = document.registerElement('deferred-content', {
