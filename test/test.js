@@ -66,6 +66,7 @@ asyncTest('adds is-error class on 500 status', 1, function() {
   document.getElementById('qunit-fixture').appendChild(div)
 
   div.addEventListener('error', function(event) {
+    event.stopPropagation()
     ok(document.querySelector('deferred-content').classList.contains('is-error'))
     start()
   })
@@ -77,6 +78,7 @@ asyncTest('adds is-error class on xhr error', 1, function() {
   document.getElementById('qunit-fixture').appendChild(div)
 
   div.addEventListener('error', function(event) {
+    event.stopPropagation()
     ok(document.querySelector('deferred-content').classList.contains('is-error'))
     start()
   })
