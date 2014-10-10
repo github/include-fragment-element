@@ -40,7 +40,7 @@ asyncTest('replaces element on 200 status', 2, function() {
   div.innerHTML = '<deferred-content src="/hello">loading</deferred-content>'
   document.getElementById('qunit-fixture').appendChild(div)
 
-  div.addEventListener('load', function(event) {
+  div.firstChild.addEventListener('load', function(event) {
     equal(document.querySelector('deferred-content'), null)
     equal(document.querySelector('#replaced').textContent, 'hello')
     start()
@@ -52,7 +52,7 @@ asyncTest('replaces with several new elements on 200 status', 3, function() {
   div.innerHTML = '<deferred-content src="/one-two">loading</deferred-content>'
   document.getElementById('qunit-fixture').appendChild(div)
 
-  div.addEventListener('load', function(event) {
+  div.firstChild.addEventListener('load', function(event) {
     equal(document.querySelector('deferred-content'), null)
     equal(document.querySelector('#one').textContent, 'one')
     equal(document.querySelector('#two').textContent, 'two')
