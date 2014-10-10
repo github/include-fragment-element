@@ -37,8 +37,8 @@
       self.insertAdjacentHTML('afterend', html)
       self.parentNode.removeChild(self)
 
-      fire('loadend', self)
       fire('load', self)
+      fire('loadend', self)
     }, function() {
       self.classList.add('is-error')
 
