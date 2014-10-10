@@ -45,7 +45,7 @@ asyncTest('replaces element on 200 status', 2, function() {
     equal(document.querySelector('deferred-content'), null)
     equal(document.querySelector('#replaced').textContent, 'hello')
     start()
-  }, 100)
+  }, 500)
 })
 
 asyncTest('replaces with several new elements on 200 status', 3, function() {
@@ -59,7 +59,7 @@ asyncTest('replaces with several new elements on 200 status', 3, function() {
     equal(document.querySelector('#one').textContent, 'one')
     equal(document.querySelector('#two').textContent, 'two')
     start()
-  }, 100)
+  }, 500)
 })
 
 asyncTest('adds is-error class on 500 status', 1, function() {
@@ -71,7 +71,7 @@ asyncTest('adds is-error class on 500 status', 1, function() {
   setTimeout(function() {
     ok(document.querySelector('deferred-content').classList.contains('is-error'))
     start()
-  }, 100)
+  }, 500)
 })
 
 asyncTest('adds is-error class on xhr error', 1, function() {
@@ -83,5 +83,5 @@ asyncTest('adds is-error class on xhr error', 1, function() {
   setTimeout(function() {
     ok(document.querySelector('deferred-content').classList.contains('is-error'))
     start()
-  }, 100)
+  }, 500)
 })
