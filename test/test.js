@@ -35,6 +35,25 @@ test('src property', function() {
   equal(link.href, el.src)
 })
 
+asyncTest('initial data is in error state', 1, function() {
+  var el = document.createElement('deferred-content')
+
+  el.data['catch'](function(error) {
+    ok(error)
+    start()
+  })
+})
+
+asyncTest('data with src', 1, function() {
+  var el = document.createElement('deferred-content')
+  el.src = '/hello'
+
+  el.data.then(function(html) {
+    equal('<div id="replaced">hello</div>', html)
+    start()
+  })
+})
+
 asyncTest('replaces element on 200 status', 2, function() {
   var div = document.createElement('div')
   div.innerHTML = '<deferred-content src="/hello">loading</deferred-content>'

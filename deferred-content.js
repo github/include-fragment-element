@@ -43,9 +43,9 @@
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     if (attrName === 'src') {
       if (newValue) {
-        this._fetch = this.fetch(newValue)
+        this.data = this.fetch(newValue)
       } else {
-        this._fetch = Promise.reject()
+        this.data = Promise.reject(new Error('missing src'))
       }
     }
   }
@@ -55,7 +55,7 @@
   }
 
   DeferredContentPrototype.attachedCallback = function() {
-    handleFetch(this, this._fetch)
+    handleFetch(this, this.data)
   }
 
   DeferredContentPrototype.fetch = function(url) {
