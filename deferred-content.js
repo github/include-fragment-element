@@ -60,8 +60,6 @@
   }
 
   DeferredContentPrototype.fetch = function(url) {
-    var self = this
-
     return new Promise(function(resolve, reject) {
       function poll(wait) {
         var xhr = new XMLHttpRequest()
