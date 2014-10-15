@@ -7,7 +7,7 @@
     target.dispatchEvent(event)
   }
 
-  function handleFetch(el, fetch) {
+  function handleData(el, fetch) {
     fetch.then(function(html) {
       el.insertAdjacentHTML('afterend', html)
       el.parentNode.removeChild(el)
@@ -55,7 +55,7 @@
   }
 
   DeferredContentPrototype.attachedCallback = function() {
-    handleFetch(this, this.data)
+    handleData(this, this.data)
   }
 
   DeferredContentPrototype.fetch = function(url) {
