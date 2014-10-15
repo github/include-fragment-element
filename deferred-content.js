@@ -43,7 +43,7 @@
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     if (attrName === 'src') {
       if (newValue) {
-        fire('loadstart', self)
+        fire('loadstart', this)
         this.data = this.fetch(newValue)
       } else {
         this.data = Promise.reject(new Error('missing src'))
