@@ -43,6 +43,7 @@
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     if (attrName === 'src') {
       if (newValue) {
+        fire('loadstart', self)
         this.data = this.fetch(newValue)
       } else {
         this.data = Promise.reject(new Error('missing src'))
@@ -88,7 +89,6 @@
 
         xhr.open('GET', url)
         xhr.send(null)
-        fire('loadstart', self)
       }
 
       poll(1000)
