@@ -28,10 +28,10 @@ test('src property', function() {
   equal(null, el.getAttribute('src'))
   equal('', el.src)
 
-  el.src = 'content.html'
-  equal('content.html', el.getAttribute('src'))
+  el.src = '/hello'
+  equal('/hello', el.getAttribute('src'))
   var link = document.createElement('a')
-  link.href = 'content.html'
+  link.href = '/hello'
   equal(link.href, el.src)
 })
 
