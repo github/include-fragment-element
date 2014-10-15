@@ -7,6 +7,21 @@
     target.dispatchEvent(event)
   }
 
+  function handleData(el, fetch) {
+    fetch.then(function(html) {
+      el.insertAdjacentHTML('afterend', html)
+      el.parentNode.removeChild(el)
+
+      fire('load', el)
+      fire('loadend', el)
+    }, function() {
+      el.classList.add('is-error')
+
+      fire('error', el)
+      fire('loadend', el)
+    })
+  }
+
   var DeferredContentPrototype = Object.create(window.HTMLElement.prototype)
 
   Object.defineProperty(DeferredContentPrototype, 'src', {
@@ -25,31 +40,26 @@
     }
   })
 
-  DeferredContentPrototype.attachedCallback = function() {
-    var self = this
-
-    var url = self.src
-    if (!url) {
-      return
+  DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
+    if (attrName === 'src') {
+      if (newValue) {
+        fire('loadstart', this)
+        this.data = this.fetch(newValue)
+      } else {
+        this.data = Promise.reject(new Error('missing src'))
+      }
     }
+  }
 
-    self.fetch(url).then(function(html) {
-      self.insertAdjacentHTML('afterend', html)
-      self.parentNode.removeChild(self)
+  DeferredContentPrototype.createdCallback = function() {
+    this.attributeChangedCallback('src', null, this.src)
+  }
 
-      fire('load', self)
-      fire('loadend', self)
-    }, function() {
-      self.classList.add('is-error')
-
-      fire('error', self)
-      fire('loadend', self)
-    })
+  DeferredContentPrototype.attachedCallback = function() {
+    handleData(this, this.data)
   }
 
   DeferredContentPrototype.fetch = function(url) {
-    var self = this
-
     return new Promise(function(resolve, reject) {
       function poll(wait) {
         var xhr = new XMLHttpRequest()
@@ -77,7 +87,6 @@
 
         xhr.open('GET', url)
         xhr.send(null)
-        fire('loadstart', self)
       }
 
       poll(1000)

@@ -28,11 +28,30 @@ test('src property', function() {
   equal(null, el.getAttribute('src'))
   equal('', el.src)
 
-  el.src = 'content.html'
-  equal('content.html', el.getAttribute('src'))
+  el.src = '/hello'
+  equal('/hello', el.getAttribute('src'))
   var link = document.createElement('a')
-  link.href = 'content.html'
+  link.href = '/hello'
   equal(link.href, el.src)
+})
+
+asyncTest('initial data is in error state', 1, function() {
+  var el = document.createElement('deferred-content')
+
+  el.data['catch'](function(error) {
+    ok(error)
+    start()
+  })
+})
+
+asyncTest('data with src', 1, function() {
+  var el = document.createElement('deferred-content')
+  el.src = '/hello'
+
+  el.data.then(function(html) {
+    equal('<div id="replaced">hello</div>', html)
+    start()
+  })
 })
 
 asyncTest('replaces element on 200 status', 2, function() {
