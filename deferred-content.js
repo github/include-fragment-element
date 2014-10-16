@@ -125,7 +125,6 @@
   }
 
   window.PollDeferredContentElement = document.registerElement('poll-deferred-content', {
-    prototype: PollDeferredContentPrototype,
-    'extends': 'deferred-content'
+    prototype: PollDeferredContentPrototype
   })
 })();
