@@ -61,6 +61,37 @@
 
   DeferredContentPrototype.fetch = function(url) {
     return new Promise(function(resolve, reject) {
+      var xhr = new XMLHttpRequest()
+
+      xhr.onload = function() {
+        switch (xhr.status) {
+          case 200:
+            resolve(xhr.responseText)
+            break
+          default:
+            reject()
+            break
+        }
+      }
+
+      xhr.onerror = function() {
+        reject()
+      }
+
+      xhr.open('GET', url)
+      xhr.send()
+    })
+  }
+
+  window.DeferredContentElement = document.registerElement('deferred-content', {
+    prototype: DeferredContentPrototype
+  })
+
+
+  var PollDeferredContentPrototype = Object.create(DeferredContentPrototype)
+
+  PollDeferredContentPrototype.fetch = function(url) {
+    return new Promise(function(resolve, reject) {
       function poll(wait) {
         var xhr = new XMLHttpRequest()
 
@@ -86,14 +117,15 @@
         }
 
         xhr.open('GET', url)
-        xhr.send(null)
+        xhr.send()
       }
 
       poll(1000)
     })
   }
 
-  window.DeferredContentElement = document.registerElement('deferred-content', {
-    prototype: DeferredContentPrototype
+  window.PollDeferredContentElement = document.registerElement('poll-deferred-content', {
+    prototype: PollDeferredContentPrototype,
+    'extends': 'deferred-content'
   })
 })();
