@@ -96,4 +96,4 @@
   window.DeferredContentElement = document.registerElement('deferred-content', {
     prototype: DeferredContentPrototype
   })
-})()
+})();
