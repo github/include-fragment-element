@@ -1,6 +1,6 @@
 {
   "name": "deferred-content",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "main": "deferred-content.js",
   "devDependencies": {
     "CustomElements": "0.2.3",
