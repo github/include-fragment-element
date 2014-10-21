@@ -57,14 +57,18 @@ asyncTest('data with src', 1, function() {
 test('data is not writable', 2, function() {
   var el = document.createElement('deferred-content')
   ok(el.data !== 42)
-  el.data = 42
+  try {
+    el.data = 42
+  } catch(e) {}
   ok(el.data !== 42)
 })
 
 test('data is not configurable', 2, function() {
   var el = document.createElement('deferred-content')
   ok(el.data !== undefined)
-  delete el.data
+  try {
+    delete el.data
+  } catch(e) {}
   ok(el.data !== undefined)
 })
 
