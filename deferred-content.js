@@ -41,7 +41,6 @@
   })
 
   Object.defineProperty(DeferredContentPrototype, 'data', {
-    configurable: false,
     get: function() {
       return this._data || Promise.reject(new Error('missing src'));
     }
