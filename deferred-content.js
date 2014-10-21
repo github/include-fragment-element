@@ -1,7 +1,8 @@
 (function() {
   'use strict';
 
-  var privateData = new WeakMap()
+  var loadSrc  = new WeakMap()
+  var loadData = new WeakMap()
 
   function fire(name, target) {
     setTimeout(function() {
@@ -22,6 +23,14 @@
       fire('loadend', el)
       throw error
     })
+  }
+
+  function reload(el, src) {
+    var data = src ? load(el, src) :
+      Promise.reject(new Error('missing src'))
+    loadSrc.set(el, src)
+    loadData.set(el, data)
+    return data
   }
 
   function handleData(el, data) {
@@ -53,22 +62,27 @@
 
   Object.defineProperty(DeferredContentPrototype, 'data', {
     get: function() {
-      return privateData.get(this) || Promise.reject(new Error('missing src'))
+      var src = this.src
+      if (loadSrc.get(this) === src) {
+        return loadData.get(this)
+      } else {
+        return reload(this, src)
+      }
     }
   })
 
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
+    // Reload data load cache
     if (attrName === 'src') {
-      if (newValue) {
-        privateData.set(this, load(this, newValue))
-      } else {
-        privateData['delete'](this)
-      }
+      loadSrc['delete'](this)
+      loadData['delete'](this)
+      this.data
     }
   }
 
   DeferredContentPrototype.createdCallback = function() {
-    this.attributeChangedCallback('src', null, this.src)
+    // Preload data cache
+    this.data
   }
 
   DeferredContentPrototype.attachedCallback = function() {
