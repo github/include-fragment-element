@@ -54,6 +54,20 @@ asyncTest('data with src', 1, function() {
   })
 })
 
+test('data is not writable', 2, function() {
+  var el = document.createElement('deferred-content')
+  ok(el.data !== 42)
+  el.data = 42
+  ok(el.data !== 42)
+})
+
+test('data is not configurable', 2, function() {
+  var el = document.createElement('deferred-content')
+  ok(el.data !== undefined)
+  delete el.data
+  ok(el.data !== undefined)
+})
+
 asyncTest('replaces element on 200 status', 2, function() {
   var div = document.createElement('div')
   div.innerHTML = '<deferred-content src="/hello">loading</deferred-content>'

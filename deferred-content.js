@@ -40,13 +40,20 @@
     }
   })
 
+  Object.defineProperty(DeferredContentPrototype, 'data', {
+    configurable: false,
+    get: function() {
+      return this._data || Promise.reject(new Error('missing src'));
+    }
+  })
+
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     if (attrName === 'src') {
       if (newValue) {
         fire('loadstart', this)
-        this.data = this.fetch(newValue)
+        this._data = this.fetch(newValue);
       } else {
-        this.data = Promise.reject(new Error('missing src'))
+        delete this._data;
       }
     }
   }
