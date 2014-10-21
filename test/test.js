@@ -51,6 +51,9 @@ asyncTest('data with src', 1, function() {
   el.data.then(function(html) {
     equal('<div id="replaced">hello</div>', html)
     start()
+  }, function() {
+    ok(false)
+    start()
   })
 })
 

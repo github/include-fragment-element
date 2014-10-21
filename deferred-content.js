@@ -4,23 +4,32 @@
   var privateData = new WeakMap()
 
   function fire(name, target) {
-    var event = document.createEvent('Event')
-    event.initEvent(name, true, true)
-    target.dispatchEvent(event)
+    setTimeout(function() {
+      var event = document.createEvent('Event')
+      event.initEvent(name, true, true)
+      target.dispatchEvent(event)
+    }, 0)
   }
 
-  function handleData(el, fetch) {
-    fetch.then(function(html) {
-      el.insertAdjacentHTML('afterend', html)
-      el.parentNode.removeChild(el)
-
+  function load(el, url) {
+    fire('loadstart', el)
+    return el.fetch(url).then(function(data) {
       fire('load', el)
       fire('loadend', el)
-    }, function() {
-      el.classList.add('is-error')
-
+      return data
+    }, function(error) {
       fire('error', el)
       fire('loadend', el)
+      throw error
+    })
+  }
+
+  function handleData(el, data) {
+    return data.then(function(html) {
+      el.insertAdjacentHTML('afterend', html)
+      el.parentNode.removeChild(el)
+    }, function() {
+      el.classList.add('is-error')
     })
   }
 
@@ -51,8 +60,7 @@
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     if (attrName === 'src') {
       if (newValue) {
-        fire('loadstart', this)
-        privateData.set(this, this.fetch(newValue))
+        privateData.set(this, load(this, newValue))
       } else {
         privateData['delete'](this)
       }
