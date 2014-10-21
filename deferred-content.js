@@ -1,6 +1,8 @@
 (function() {
   'use strict';
 
+  var privateData = new WeakMap()
+
   function fire(name, target) {
     var event = document.createEvent('Event')
     event.initEvent(name, true, true)
@@ -42,7 +44,7 @@
 
   Object.defineProperty(DeferredContentPrototype, 'data', {
     get: function() {
-      return this._data || Promise.reject(new Error('missing src'));
+      return privateData.get(this) || Promise.reject(new Error('missing src'))
     }
   })
 
@@ -50,9 +52,9 @@
     if (attrName === 'src') {
       if (newValue) {
         fire('loadstart', this)
-        this._data = this.fetch(newValue);
+        privateData.set(this, this.fetch(newValue))
       } else {
-        delete this._data;
+        privateData['delete'](this)
       }
     }
   }
