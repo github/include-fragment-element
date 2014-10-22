@@ -1,8 +1,7 @@
 (function() {
   'use strict';
 
-  var loadSrc  = new WeakMap()
-  var loadData = new WeakMap()
+  var privateData = new WeakMap()
 
   function fire(name, target) {
     setTimeout(function() {
@@ -23,14 +22,6 @@
       fire('loadend', el)
       throw error
     })
-  }
-
-  function reload(el, src) {
-    var data = src ? load(el, src) :
-      Promise.reject(new Error('missing src'))
-    loadSrc.set(el, src)
-    loadData.set(el, data)
-    return data
   }
 
   function handleData(el, data) {
@@ -57,8 +48,7 @@
     },
     set: function(value) {
       this.setAttribute('src', value)
-      loadSrc['delete'](this)
-      loadData['delete'](this)
+      privateData['delete'](this)
       this.data
     }
   })
@@ -66,10 +56,14 @@
   Object.defineProperty(DeferredContentPrototype, 'data', {
     get: function() {
       var src = this.src
-      if (loadSrc.get(this) === src) {
-        return loadData.get(this)
+      var data = privateData.get(this)
+      if (data && data.src === src) {
+        return data.data
       } else {
-        return reload(this, src)
+        var data = src ? load(this, src) :
+          Promise.reject(new Error('missing src'))
+        privateData.set(this, {src: src, data: data})
+        return data
       }
     }
   })
