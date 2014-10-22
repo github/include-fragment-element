@@ -12,6 +12,10 @@
   }
 
   function load(el, url) {
+    if (!url) {
+      return Promise.reject(new Error('missing src'))
+    }
+
     fire('loadstart', el)
     return el.fetch(url).then(function(data) {
       fire('load', el)
@@ -57,8 +61,7 @@
     if (data && data.src === src) {
       return data.data
     } else {
-      data = src ? load(el, src) :
-        Promise.reject(new Error('missing src'))
+      data = load(el, src)
       privateData.set(el, {src: src, data: data})
       return data
     }
