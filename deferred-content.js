@@ -11,23 +11,6 @@
     }, 0)
   }
 
-  function load(el, url) {
-    if (!url) {
-      return Promise.reject(new Error('missing src'))
-    }
-
-    fire('loadstart', el)
-    return el.fetch(url).then(function(data) {
-      fire('load', el)
-      fire('loadend', el)
-      return data
-    }, function(error) {
-      fire('error', el)
-      fire('loadend', el)
-      throw error
-    })
-  }
-
   function handleData(el, data) {
     return data.then(function(html) {
       el.insertAdjacentHTML('afterend', html)
@@ -61,7 +44,7 @@
     if (data && data.src === src) {
       return data.data
     } else {
-      data = load(el, src)
+      data = el.load(src)
       privateData.set(el, {src: src, data: data})
       return data
     }
@@ -87,6 +70,25 @@
 
   DeferredContentPrototype.attachedCallback = function() {
     handleData(this, this.data)
+  }
+
+  DeferredContentPrototype.load = function(url) {
+    var self = this
+
+    if (!url) {
+      return Promise.reject(new Error('missing src'))
+    }
+
+    fire('loadstart', self)
+    return self.fetch(url).then(function(data) {
+      fire('load', self)
+      fire('loadend', self)
+      return data
+    }, function(error) {
+      fire('error', self)
+      fire('loadend', self)
+      throw error
+    })
   }
 
   DeferredContentPrototype.fetch = function(url) {
