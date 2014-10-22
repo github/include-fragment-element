@@ -57,6 +57,9 @@
     },
     set: function(value) {
       this.setAttribute('src', value)
+      loadSrc['delete'](this)
+      loadData['delete'](this)
+      this.data
     }
   })
 
@@ -71,12 +74,10 @@
     }
   })
 
-  DeferredContentPrototype.attributeChangedCallback = function(attrName) {
+  DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     // Reload data load cache
     if (attrName === 'src') {
-      loadSrc['delete'](this)
-      loadData['delete'](this)
-      this.data
+      this.src = newValue
     }
   }
 
