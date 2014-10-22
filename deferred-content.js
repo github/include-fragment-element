@@ -47,11 +47,7 @@
       }
     },
     set: function(value) {
-      if (value !== this.getAttribute('src')) {
-        this.setAttribute('src', value)
-        privateData['delete'](this)
-        getData(this)
-      }
+      this.setAttribute('src', value)
     }
   })
 
@@ -77,7 +73,7 @@
   DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
     // Reload data load cache
     if (attrName === 'src') {
-      this.src = newValue
+      getData(this)
     }
   }
 
