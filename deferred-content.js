@@ -60,7 +60,7 @@
       if (data && data.src === src) {
         return data.data
       } else {
-        var data = src ? load(this, src) :
+        data = src ? load(this, src) :
           Promise.reject(new Error('missing src'))
         privateData.set(this, {src: src, data: data})
         return data
