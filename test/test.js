@@ -44,9 +44,22 @@ asyncTest('initial data is in error state', 1, function() {
   })
 })
 
-asyncTest('data with src', 1, function() {
+asyncTest('data with src property', 1, function() {
   var el = document.createElement('deferred-content')
   el.src = '/hello'
+
+  el.data.then(function(html) {
+    equal('<div id="replaced">hello</div>', html)
+    start()
+  }, function() {
+    ok(false)
+    start()
+  })
+})
+
+asyncTest('data with src attribute', 1, function() {
+  var el = document.createElement('deferred-content')
+  el.setAttribute('src', '/hello')
 
   el.data.then(function(html) {
     equal('<div id="replaced">hello</div>', html)
