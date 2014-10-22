@@ -94,7 +94,7 @@ asyncTest('setting data with src property multiple times', 2, function() {
   }).then(function(text) {
     equal('1', text)
     start()
-  }).catch(function() {
+  })['catch'](function() {
     ok(false)
     start()
   })
@@ -112,7 +112,7 @@ asyncTest('setting data with src attribute multiple times', 2, function() {
   }).then(function(text) {
     equal('1', text)
     start()
-  }).catch(function() {
+  })['catch'](function() {
     ok(false)
     start()
   })
