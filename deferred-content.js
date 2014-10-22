@@ -69,7 +69,7 @@
   }
 
   DeferredContentPrototype.attachedCallback = function() {
-    handleData(this, this.data)
+    handleData(this, getData(this))
   }
 
   DeferredContentPrototype.load = function(url) {
