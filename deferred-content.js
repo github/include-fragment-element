@@ -5,7 +5,7 @@
 
   function fire(name, target) {
     setTimeout(function() {
-      var event = document.createEvent('Event')
+      var event = target.ownerDocument.createEvent('Event')
       event.initEvent(name, true, true)
       target.dispatchEvent(event)
     }, 0)
