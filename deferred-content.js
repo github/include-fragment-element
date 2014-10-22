@@ -49,22 +49,26 @@
     set: function(value) {
       this.setAttribute('src', value)
       privateData['delete'](this)
-      this.data
+      getData(this)
     }
   })
 
+  function getData(el) {
+    var src = el.src
+    var data = privateData.get(el)
+    if (data && data.src === src) {
+      return data.data
+    } else {
+      data = src ? load(el, src) :
+        Promise.reject(new Error('missing src'))
+      privateData.set(el, {src: src, data: data})
+      return data
+    }
+  }
+
   Object.defineProperty(DeferredContentPrototype, 'data', {
     get: function() {
-      var src = this.src
-      var data = privateData.get(this)
-      if (data && data.src === src) {
-        return data.data
-      } else {
-        data = src ? load(this, src) :
-          Promise.reject(new Error('missing src'))
-        privateData.set(this, {src: src, data: data})
-        return data
-      }
+      return getData(this)
     }
   })
 
@@ -77,7 +81,7 @@
 
   DeferredContentPrototype.createdCallback = function() {
     // Preload data cache
-    this.data
+    getData(this)
   }
 
   DeferredContentPrototype.attachedCallback = function() {

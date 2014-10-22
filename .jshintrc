@@ -15,7 +15,6 @@
   "boss": true,
   "asi": true,
   "eqnull": true,
-  "expr": true,
   "browser": true,
   "globals": {
     "Promise": false,
