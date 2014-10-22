@@ -47,9 +47,11 @@
       }
     },
     set: function(value) {
-      this.setAttribute('src', value)
-      privateData['delete'](this)
-      getData(this)
+      if (value !== this.getAttribute('src')) {
+        this.setAttribute('src', value)
+        privateData['delete'](this)
+        getData(this)
+      }
     }
   })
 

@@ -1,3 +1,5 @@
+var count
+
 MockXHR.responses = {
   '/hello': function(xhr) {
     xhr.respond(200, '<div id="replaced">hello</div>')
@@ -7,10 +9,20 @@ MockXHR.responses = {
   },
   '/boom': function(xhr) {
     xhr.respond(500, 'boom')
+  },
+  '/count': function(xhr) {
+    count++
+    xhr.respond(200, ''+count)
   }
 }
 
 window.XMLHttpRequest = MockXHR
+
+module('', {
+  setup: function() {
+    count = 0
+  }
+})
 
 
 test('create from document.createElement', function() {
@@ -65,6 +77,42 @@ asyncTest('data with src attribute', 1, function() {
     equal('<div id="replaced">hello</div>', html)
     start()
   }, function() {
+    ok(false)
+    start()
+  })
+})
+
+asyncTest('setting data with src property multiple times', 2, function() {
+  var el = document.createElement('deferred-content')
+  el.src = '/count'
+
+  el.data.then(function(text) {
+    equal('1', text)
+    el.src = '/count'
+  }).then(function() {
+    return el.data
+  }).then(function(text) {
+    equal('1', text)
+    start()
+  }).catch(function() {
+    ok(false)
+    start()
+  })
+})
+
+asyncTest('setting data with src attribute multiple times', 2, function() {
+  var el = document.createElement('deferred-content')
+  el.setAttribute('src', '/count')
+
+  el.data.then(function(text) {
+    equal('1', text)
+    el.setAttribute('src', '/count')
+  }).then(function() {
+    return el.data
+  }).then(function(text) {
+    equal('1', text)
+    start()
+  }).catch(function() {
     ok(false)
     start()
   })
