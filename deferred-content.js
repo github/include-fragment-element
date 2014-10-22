@@ -70,7 +70,7 @@
     }
   })
 
-  DeferredContentPrototype.attributeChangedCallback = function(attrName, oldValue, newValue) {
+  DeferredContentPrototype.attributeChangedCallback = function(attrName) {
     // Reload data load cache
     if (attrName === 'src') {
       getData(this)
