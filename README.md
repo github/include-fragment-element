@@ -1,13 +1,13 @@
-# &lt;deferred-content&gt; custom element
+# &lt;include-fragment&gt; custom element
 
 Replaces an element with the result of an XMLHttpRequest, deferring the building of the replacement element until it's ready on the server.
 
 ## Installation
 
-Available on [Bower](http://bower.io) as **deferred-content**.
+Available on [Bower](http://bower.io) as **include-fragment-element**.
 
 ```
-$ bower install deferred-content
+$ bower install include-fragment-element
 ```
 
 This component is built on the [Web Component](http://webcomponents.org/) stack. Specifically, it requires a feature called [Custom Elements](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/). You'll need to use a polyfill to get this feature today. Either the [Polymer](http://www.polymer-project.org/) or [X-Tag](http://www.x-tags.org/) frameworks supply a polyfill, or you can install the standalone [CustomElements](https://github.com/Polymer/CustomElements) polyfill.
@@ -18,21 +18,21 @@ This component is built on the [Web Component](http://webcomponents.org/) stack.
 
 ## Usage
 
-All `deferred-content` elements must have a `src` attribute from which to retrieve an HTML element fragment.
+All `include-fragment` elements must have a `src` attribute from which to retrieve an HTML element fragment.
 
-The initial page load must contain a `deferred-content` element with markup to be displayed while the deferred content is building on the server.
+The initial page load must contain a `include-fragment` element with markup to be displayed while the content is building on the server.
 
 **Original:**
 
 ``` html
 <div class="some-container">
-  <deferred-content src="/users/hubot/contributions">
+  <include-fragment src="/users/hubot/contributions">
     <p>Loading…</p>
-  </deferred-content>
+  </include-fragment>
 </div>
 ```
 
-On page load, the `deferred-content` element retrieves the URL via an XMLHttpRequest, the response is parsed into an HTML element, which replaces the `deferred-content` element entirely.
+On page load, the `include-fragment` element retrieves the URL via an XMLHttpRequest, the response is parsed into an HTML element, which replaces the `include-fragment` element entirely.
 
 **Result:**
 
@@ -42,15 +42,15 @@ On page load, the `deferred-content` element retrieves the URL via an XMLHttpReq
 </div>
 ```
 
-The server must respond with an HTML fragment to replace the `deferred-content` element. It must not contain _another_ `deferred-content` element or the server will be polled in an infinite loop.
+The server must respond with an HTML fragment to replace the `include-fragment` element. It must not contain _another_ `include-fragment` element or the server will be polled in an infinite loop.
 
 ### Polling
 
-If the URL returns a 202 Accepted or 404 Not Found HTTP status code, the `deferred-content` element will poll the resource until a 200 status is returned. This is useful for a user action starting a background job on the server, then polling a URL resource for the job's result.
+If the URL returns a 202 Accepted or 404 Not Found HTTP status code, the `include-fragment` element will poll the resource until a 200 status is returned. This is useful for a user action starting a background job on the server, then polling a URL resource for the job's result.
 
 ### Errors
 
-If the URL fails to load, the `deferred-content` element is left in the page and tagged with an `is-error` CSS class that can be used for styling. No additional polling requests are made to the URL after an error occurs.
+If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling. No additional polling requests are made to the URL after an error occurs.
 
 ### Options
 
@@ -62,9 +62,9 @@ Attribute      | Options                        | Description
 
 Deferring the display of markup is typically done in the following usage patterns.
 
-- A user action begins a slow running background job on the server, like backing up files stored on the server. While the backup job is running, a progress bar is shown to the user. When it's complete, the deferred-content element is replaced with a link to the backup files.
+- A user action begins a slow running background job on the server, like backing up files stored on the server. While the backup job is running, a progress bar is shown to the user. When it's complete, the include-fragment element is replaced with a link to the backup files.
 
-- The first time a user visits a page, containing a time-consuming piece of markup to generate, a loading indicator is displayed. When the markup is finished building on the server, it's stored in memcache and sent to the browser to replace the deferred-content loader. Subsequent visits to the page render the cached markup directly, without going through a deferred-content element.
+- The first time a user visits a page, containing a time-consuming piece of markup to generate, a loading indicator is displayed. When the markup is finished building on the server, it's stored in memcache and sent to the browser to replace the include-fragment loader. Subsequent visits to the page render the cached markup directly, without going through a include-fragment element.
 
 ## Browser Support
 
