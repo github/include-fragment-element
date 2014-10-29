@@ -96,21 +96,30 @@
       var xhr = new XMLHttpRequest()
 
       xhr.onload = function() {
-        switch (xhr.status) {
-          case 200:
+        if (xhr.status === 200) {
+          var ct = xhr.getResponseHeader('Content-Type')
+          if (ct === 'text/html') {
             resolve(xhr.responseText)
-            break
-          default:
-            reject()
-            break
+          } else {
+            reject(
+              new Error('Failed to load resource: ' +
+                'expected text/html but was ' + ct
+              )
+            )
+          }
+        } else {
+          reject(
+            new Error('Failed to load resource: ' +
+              'the server responded with a status of ' +
+              xhr.status)
+          )
         }
       }
 
-      xhr.onerror = function() {
-        reject()
-      }
+      xhr.onerror = reject
 
       xhr.open('GET', url)
+      xhr.setRequestHeader('Accept', 'text/html')
       xhr.send()
     })
   }
