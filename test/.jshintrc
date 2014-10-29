@@ -12,7 +12,6 @@
   "unused": true,
   "trailing": true,
   "boss": true,
-  "asi": true,
   "eqnull": true,
   "browser": true,
   "globals": {
