@@ -2,7 +2,7 @@ var count;
 
 MockXHR.responses = {
   '/hello': function(xhr) {
-    xhr.respond(200, '<div id="replaced">hello</div>', {'Content-Type': 'text/html'});
+    xhr.respond(200, '<div id="replaced">hello</div>', {'Content-Type': 'text/html; charset=utf-8'});
   },
   '/one-two': function(xhr) {
     xhr.respond(200, '<p id="one">one</p><p id="two">two</p>', {'Content-Type': 'text/html'});
