@@ -45,10 +45,6 @@ On page load, the `include-fragment` element fetches the URL, the response is pa
 
 The server must respond with an HTML fragment to replace the `include-fragment` element. It should not contain _another_ `include-fragment` element or the server will be polled in an infinite loop.
 
-### Polling
-
-If the URL returns a 202 Accepted or 404 Not Found HTTP status code, the `include-fragment` element will poll the resource until a 200 status is returned. This is useful for a user action starting a background job on the server, then polling a URL resource for the job's result.
-
 ### Errors
 
 If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling. No additional polling requests are made to the URL after an error occurs.
@@ -77,7 +73,7 @@ This declarative approach is very similar to [SSI](http://en.wikipedia.org/wiki/
 </include-fragment>
 ```
 
-A proxy may attempt to fetch and replace the fragment if the request finishes before the timeout. Otherwise the tag is delivered to the client. This ensures the rest of the UI isn't blocking on the fragment of the page. 
+A proxy may attempt to fetch and replace the fragment if the request finishes before the timeout. Otherwise the tag is delivered to the client. This ensures the rest of the UI isn't blocking on the fragment of the page.
 
 
 ## Browser Support

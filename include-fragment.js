@@ -127,45 +127,4 @@
   window.DeferredContentElement = document.registerElement('include-fragment', {
     prototype: DeferredContentPrototype
   });
-
-
-  var PollDeferredContentPrototype = Object.create(DeferredContentPrototype);
-
-  PollDeferredContentPrototype.fetch = function(url) {
-    return new Promise(function(resolve, reject) {
-      function poll(wait) {
-        var xhr = new XMLHttpRequest();
-
-        xhr.onload = function() {
-          switch (xhr.status) {
-            case 200:
-              resolve(xhr.responseText);
-              break;
-            case 202:
-            case 404:
-              window.setTimeout(function() {
-                poll(wait * 1.5);
-              }, wait);
-              break;
-            default:
-              reject();
-              break;
-          }
-        };
-
-        xhr.onerror = function() {
-          reject();
-        };
-
-        xhr.open('GET', url);
-        xhr.send();
-      }
-
-      poll(1000);
-    });
-  };
-
-  window.PollDeferredContentElement = document.registerElement('poll-include-fragment', {
-    prototype: PollDeferredContentPrototype
-  });
 })();
