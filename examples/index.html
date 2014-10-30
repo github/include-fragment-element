@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/polymer/0.2.2/platform.js"></script>
-  <script src="../deferred-content.js"></script>
+  <script src="../include-fragment.js"></script>
   <style>
-    deferred-content {
+    include-fragment {
       display: block;
     }
     .error {
@@ -14,12 +14,12 @@
   </style>
 </head>
 <body>
-  <deferred-content src="https://github.com/users/hubot/contributions/sample">
+  <include-fragment src="https://github.com/users/hubot/contributions/sample">
     <p>Loading…</p>
-  </deferred-content>
+  </include-fragment>
 
-  <deferred-content src="http://127.0.0.2/">
+  <include-fragment src="http://127.0.0.2/">
     <p>Loading…</p>
-  </deferred-content>
+  </include-fragment>
 </body>
 </html>

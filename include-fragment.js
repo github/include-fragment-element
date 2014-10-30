@@ -124,7 +124,7 @@
     });
   };
 
-  window.DeferredContentElement = document.registerElement('deferred-content', {
+  window.DeferredContentElement = document.registerElement('include-fragment', {
     prototype: DeferredContentPrototype
   });
 
@@ -165,7 +165,7 @@
     });
   };
 
-  window.PollDeferredContentElement = document.registerElement('poll-deferred-content', {
+  window.PollDeferredContentElement = document.registerElement('poll-include-fragment', {
     prototype: PollDeferredContentPrototype
   });
 })();

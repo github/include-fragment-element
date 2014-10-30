@@ -26,17 +26,17 @@ module('', {
 
 
 test('create from document.createElement', function() {
-  var el = document.createElement('deferred-content');
-  equal('DEFERRED-CONTENT', el.nodeName);
+  var el = document.createElement('include-fragment');
+  equal('INCLUDE-FRAGMENT', el.nodeName);
 });
 
 test('create from constructor', function() {
   var el = new window.DeferredContentElement();
-  equal('DEFERRED-CONTENT', el.nodeName);
+  equal('INCLUDE-FRAGMENT', el.nodeName);
 });
 
 test('src property', function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   equal(null, el.getAttribute('src'));
   equal('', el.src);
 
@@ -48,7 +48,7 @@ test('src property', function() {
 });
 
 asyncTest('initial data is in error state', 1, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
 
   el.data['catch'](function(error) {
     ok(error);
@@ -57,7 +57,7 @@ asyncTest('initial data is in error state', 1, function() {
 });
 
 asyncTest('data with src property', 1, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   el.src = '/hello';
 
   el.data.then(function(html) {
@@ -70,7 +70,7 @@ asyncTest('data with src property', 1, function() {
 });
 
 asyncTest('data with src attribute', 1, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   el.setAttribute('src', '/hello');
 
   el.data.then(function(html) {
@@ -83,7 +83,7 @@ asyncTest('data with src attribute', 1, function() {
 });
 
 asyncTest('setting data with src property multiple times', 2, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   el.src = '/count';
 
   el.data.then(function(text) {
@@ -101,7 +101,7 @@ asyncTest('setting data with src property multiple times', 2, function() {
 });
 
 asyncTest('setting data with src attribute multiple times', 2, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   el.setAttribute('src', '/count');
 
   el.data.then(function(text) {
@@ -119,7 +119,7 @@ asyncTest('setting data with src attribute multiple times', 2, function() {
 });
 
 test('data is not writable', 2, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   ok(el.data !== 42);
   try {
     el.data = 42;
@@ -128,7 +128,7 @@ test('data is not writable', 2, function() {
 });
 
 test('data is not configurable', 2, function() {
-  var el = document.createElement('deferred-content');
+  var el = document.createElement('include-fragment');
   ok(el.data !== undefined);
   try {
     delete el.data;
@@ -138,11 +138,11 @@ test('data is not configurable', 2, function() {
 
 asyncTest('replaces element on 200 status', 2, function() {
   var div = document.createElement('div');
-  div.innerHTML = '<deferred-content src="/hello">loading</deferred-content>';
+  div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
   div.firstChild.addEventListener('load', function() {
-    equal(document.querySelector('deferred-content'), null);
+    equal(document.querySelector('include-fragment'), null);
     equal(document.querySelector('#replaced').textContent, 'hello');
     start();
   });
@@ -150,11 +150,11 @@ asyncTest('replaces element on 200 status', 2, function() {
 
 asyncTest('replaces with several new elements on 200 status', 3, function() {
   var div = document.createElement('div');
-  div.innerHTML = '<deferred-content src="/one-two">loading</deferred-content>';
+  div.innerHTML = '<include-fragment src="/one-two">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
   div.firstChild.addEventListener('load', function() {
-    equal(document.querySelector('deferred-content'), null);
+    equal(document.querySelector('include-fragment'), null);
     equal(document.querySelector('#one').textContent, 'one');
     equal(document.querySelector('#two').textContent, 'two');
     start();
@@ -163,24 +163,24 @@ asyncTest('replaces with several new elements on 200 status', 3, function() {
 
 asyncTest('adds is-error class on 500 status', 1, function() {
   var div = document.createElement('div');
-  div.innerHTML = '<deferred-content src="/boom">loading</deferred-content>';
+  div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
   div.addEventListener('error', function(event) {
     event.stopPropagation();
-    ok(document.querySelector('deferred-content').classList.contains('is-error'));
+    ok(document.querySelector('include-fragment').classList.contains('is-error'));
     start();
   });
 });
 
 asyncTest('adds is-error class on xhr error', 1, function() {
   var div = document.createElement('div');
-  div.innerHTML = '<deferred-content src="/boom">loading</deferred-content>';
+  div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
   div.addEventListener('error', function(event) {
     event.stopPropagation();
-    ok(document.querySelector('deferred-content').classList.contains('is-error'));
+    ok(document.querySelector('include-fragment').classList.contains('is-error'));
     start();
   });
 });
