@@ -1,6 +1,6 @@
 {
   "name": "include-fragment-element",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "include-fragment-element.js",
   "devDependencies": {
     "CustomElements": "0.2.3",
