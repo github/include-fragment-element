@@ -1,7 +1,7 @@
 {
   "name": "include-fragment-element",
   "version": "0.5.0",
-  "main": "include-fragment.js",
+  "main": "include-fragment-element.js",
   "devDependencies": {
     "CustomElements": "0.2.3",
     "es5-basic-shim": "1.0.6",
