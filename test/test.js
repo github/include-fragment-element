@@ -31,7 +31,7 @@ test('create from document.createElement', function() {
 });
 
 test('create from constructor', function() {
-  var el = new window.DeferredContentElement();
+  var el = new window.IncludeFragmentElement();
   equal('INCLUDE-FRAGMENT', el.nodeName);
 });
 

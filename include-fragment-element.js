@@ -20,9 +20,9 @@
     });
   }
 
-  var DeferredContentPrototype = Object.create(window.HTMLElement.prototype);
+  var IncludeFragmentPrototype = Object.create(window.HTMLElement.prototype);
 
-  Object.defineProperty(DeferredContentPrototype, 'src', {
+  Object.defineProperty(IncludeFragmentPrototype, 'src', {
     get: function() {
       var src = this.getAttribute('src');
       if (src) {
@@ -50,29 +50,29 @@
     }
   }
 
-  Object.defineProperty(DeferredContentPrototype, 'data', {
+  Object.defineProperty(IncludeFragmentPrototype, 'data', {
     get: function() {
       return getData(this);
     }
   });
 
-  DeferredContentPrototype.attributeChangedCallback = function(attrName) {
+  IncludeFragmentPrototype.attributeChangedCallback = function(attrName) {
     // Reload data load cache
     if (attrName === 'src') {
       getData(this);
     }
   };
 
-  DeferredContentPrototype.createdCallback = function() {
+  IncludeFragmentPrototype.createdCallback = function() {
     // Preload data cache
     getData(this);
   };
 
-  DeferredContentPrototype.attachedCallback = function() {
+  IncludeFragmentPrototype.attachedCallback = function() {
     handleData(this, getData(this));
   };
 
-  DeferredContentPrototype.load = function(url) {
+  IncludeFragmentPrototype.load = function(url) {
     var self = this;
 
     if (!url) {
@@ -91,7 +91,7 @@
     });
   };
 
-  DeferredContentPrototype.fetch = function(url) {
+  IncludeFragmentPrototype.fetch = function(url) {
     return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
 
@@ -124,7 +124,7 @@
     });
   };
 
-  window.DeferredContentElement = document.registerElement('include-fragment', {
-    prototype: DeferredContentPrototype
+  window.IncludeFragmentElement = document.registerElement('include-fragment', {
+    prototype: IncludeFragmentPrototype
   });
 })();
