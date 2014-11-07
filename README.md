@@ -47,7 +47,7 @@ The server must respond with an HTML fragment to replace the `include-fragment` 
 
 ### Errors
 
-If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling. No additional polling requests are made to the URL after an error occurs.
+If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling.
 
 ### Options
 
