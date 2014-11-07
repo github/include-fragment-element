@@ -63,7 +63,8 @@ Deferring the display of markup is typically done in the following usage pattern
 
 - The first time a user visits a page, containing a time-consuming piece of markup to generate, a loading indicator is displayed. When the markup is finished building on the server, it's stored in memcache and sent to the browser to replace the include-fragment loader. Subsequent visits to the page render the cached markup directly, without going through a include-fragment element.
 
-## Server Side Includes
+
+## Relation to Server Side Includes
 
 This declarative approach is very similar to [SSI](http://en.wikipedia.org/wiki/Server_Side_Includes) or [ESI](http://en.wikipedia.org/wiki/Edge_Side_Includes) directives. In fact, an edge implementation could replace the markup before its actually delivered to the client.
 
@@ -73,7 +74,7 @@ This declarative approach is very similar to [SSI](http://en.wikipedia.org/wiki/
 </include-fragment>
 ```
 
-A proxy may attempt to fetch and replace the fragment if the request finishes before the timeout. Otherwise the tag is delivered to the client. This ensures the rest of the UI isn't blocking on the fragment of the page.
+A proxy may attempt to fetch and replace the fragment if the request finishes before the timeout. Otherwise the tag is delivered to the client. This library only implements the client side aspect.
 
 
 ## Browser Support
