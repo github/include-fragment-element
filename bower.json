@@ -3,6 +3,7 @@
   "version": "0.6.2",
   "main": "include-fragment-element.js",
   "devDependencies": {
+    "classlist": "2014.7.23",
     "CustomElements": "0.2.4",
     "es5-basic-shim": "1.0.6",
     "es6-promise": "1.0.0",
