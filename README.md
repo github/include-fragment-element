@@ -61,7 +61,7 @@ Deferring the display of markup is typically done in the following usage pattern
 
 - A user action begins a slow running background job on the server, like backing up files stored on the server. While the backup job is running, a progress bar is shown to the user. When it's complete, the include-fragment element is replaced with a link to the backup files.
 
-- The first time a user visits a page, containing a time-consuming piece of markup to generate, a loading indicator is displayed. When the markup is finished building on the server, it's stored in memcache and sent to the browser to replace the include-fragment loader. Subsequent visits to the page render the cached markup directly, without going through a include-fragment element.
+- The first time a user visits a page that contains a time-consuming piece of markup to generate, a loading indicator is displayed. When the markup is finished building on the server, it's stored in memcache and sent to the browser to replace the include-fragment loader. Subsequent visits to the page render the cached markup directly, without going through a include-fragment element.
 
 
 ## Relation to Server Side Includes
