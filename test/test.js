@@ -172,15 +172,3 @@ asyncTest('adds is-error class on 500 status', 1, function() {
     start();
   });
 });
-
-asyncTest('adds is-error class on xhr error', 1, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
-
-  div.addEventListener('error', function(event) {
-    event.stopPropagation();
-    ok(document.querySelector('include-fragment').classList.contains('is-error'));
-    start();
-  });
-});
