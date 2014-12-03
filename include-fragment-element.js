@@ -98,7 +98,7 @@
       xhr.onload = function() {
         if (xhr.status === 200) {
           var ct = xhr.getResponseHeader('Content-Type');
-          if (ct.match(/^text\/html/)) {
+          if (ct && ct.match(/^text\/html/)) {
             resolve(xhr.responseText);
           } else {
             reject(

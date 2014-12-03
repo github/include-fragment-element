@@ -7,6 +7,9 @@ MockXHR.responses = {
   '/one-two': function(xhr) {
     xhr.respond(200, '<p id="one">one</p><p id="two">two</p>', {'Content-Type': 'text/html'});
   },
+  '/blank-type': function(xhr) {
+    xhr.respond(200, '<div id="replaced">hello</div>', {'Content-Type': null});
+  },
   '/boom': function(xhr) {
     xhr.respond(500, 'boom');
   },
@@ -164,6 +167,18 @@ asyncTest('replaces with several new elements on 200 status', 3, function() {
 asyncTest('adds is-error class on 500 status', 1, function() {
   var div = document.createElement('div');
   div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
+  document.getElementById('qunit-fixture').appendChild(div);
+
+  div.addEventListener('error', function(event) {
+    event.stopPropagation();
+    ok(document.querySelector('include-fragment').classList.contains('is-error'));
+    start();
+  });
+});
+
+asyncTest('adds is-error class on mising Content-Type', 1, function() {
+  var div = document.createElement('div');
+  div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
   div.addEventListener('error', function(event) {
