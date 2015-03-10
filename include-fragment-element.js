@@ -62,7 +62,7 @@
       var data = getData(this);
 
       // Source changed after attached so replace element.
-      if (this.parentNode) {
+      if (this._attached) {
         handleData(this, data);
       }
     }
@@ -74,6 +74,7 @@
   };
 
   IncludeFragmentPrototype.attachedCallback = function() {
+    this._attached = true;
     if (this.src) {
       handleData(this, getData(this));
     }
