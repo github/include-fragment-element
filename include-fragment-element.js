@@ -69,7 +69,9 @@
   };
 
   IncludeFragmentPrototype.attachedCallback = function() {
-    handleData(this, getData(this));
+    if (this.src) {
+      handleData(this, getData(this));
+    }
   };
 
   IncludeFragmentPrototype.load = function(url) {
