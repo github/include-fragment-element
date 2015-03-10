@@ -57,9 +57,14 @@
   });
 
   IncludeFragmentPrototype.attributeChangedCallback = function(attrName) {
-    // Reload data load cache
     if (attrName === 'src') {
-      getData(this);
+      // Reload data load cache.
+      var data = getData(this);
+
+      // Source changed after attached so replace element.
+      if (this.parentNode) {
+        handleData(this, data);
+      }
     }
   };
 
