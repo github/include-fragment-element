@@ -187,3 +187,19 @@ asyncTest('adds is-error class on mising Content-Type', 1, function() {
     start();
   });
 });
+
+asyncTest('replaces element when src attribute is changed', 2, function() {
+  var div = document.createElement('div');
+  div.innerHTML = '<include-fragment>loading</include-fragment>';
+  document.getElementById('qunit-fixture').appendChild(div);
+
+  div.firstChild.addEventListener('load', function() {
+    equal(document.querySelector('include-fragment'), null);
+    equal(document.querySelector('#replaced').textContent, 'hello');
+    start();
+  });
+
+  setTimeout(function() {
+    div.firstChild.src = '/hello';
+  }, 10);
+});

@@ -57,9 +57,14 @@
   });
 
   IncludeFragmentPrototype.attributeChangedCallback = function(attrName) {
-    // Reload data load cache
     if (attrName === 'src') {
-      getData(this);
+      // Reload data load cache.
+      var data = getData(this);
+
+      // Source changed after attached so replace element.
+      if (this._attached) {
+        handleData(this, data);
+      }
     }
   };
 
@@ -69,8 +74,15 @@
   };
 
   IncludeFragmentPrototype.attachedCallback = function() {
-    handleData(this, getData(this));
+    this._attached = true;
+    if (this.src) {
+      handleData(this, getData(this));
+    }
   };
+
+  IncludeFragmentPrototype.detachedCallback = function() {
+    this._attached = false;
+  }
 
   IncludeFragmentPrototype.load = function(url) {
     var self = this;
