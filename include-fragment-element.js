@@ -80,6 +80,10 @@
     }
   };
 
+  IncludeFragmentPrototype.detachedCallback = function() {
+    this._attached = false;
+  }
+
   IncludeFragmentPrototype.load = function(url) {
     var self = this;
 
