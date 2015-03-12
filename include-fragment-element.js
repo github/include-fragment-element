@@ -70,7 +70,9 @@
 
   IncludeFragmentPrototype.createdCallback = function() {
     // Preload data cache
-    getData(this);
+    getData(this)['catch'](function() {
+      // Ignore `src missing` error on pre-load.
+    });
   };
 
   IncludeFragmentPrototype.attachedCallback = function() {
@@ -82,7 +84,7 @@
 
   IncludeFragmentPrototype.detachedCallback = function() {
     this._attached = false;
-  }
+  };
 
   IncludeFragmentPrototype.load = function(url) {
     var self = this;
