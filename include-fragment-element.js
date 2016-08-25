@@ -44,7 +44,11 @@
     if (data && data.src === src) {
       return data.data;
     } else {
-      data = el.load(src);
+      if (src) {
+        data = el.load();
+      } else {
+        data = Promise.reject(new Error('missing src'));
+      }
       privateData.set(el, {src: src, data: data});
       return data;
     }
@@ -86,15 +90,44 @@
     this._attached = false;
   };
 
-  IncludeFragmentPrototype.load = function(url) {
-    var self = this;
-
-    if (!url) {
-      return Promise.reject(new Error('missing src'));
+  IncludeFragmentPrototype.request = function() {
+    var src = this.src;
+    if (!src) {
+      throw new Error('missing src');
     }
 
-    fire('loadstart', self);
-    return self.fetch(url).then(function(data) {
+    return new Request(src, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'text/html'
+      }
+    });
+  };
+
+  IncludeFragmentPrototype.load = function() {
+    var self = this;
+
+    return Promise.resolve().then(function() {
+      var request = self.request();
+      fire('loadstart', self);
+      return self.fetch(request);
+    }).then(function(response) {
+      if (response.status !== 200) {
+        throw new Error('Failed to load resource: ' +
+          'the server responded with a status of ' + response.status);
+      }
+
+      var ct = response.headers.get('Content-Type');
+      if (!ct || !ct.match(/^text\/html/)) {
+        throw new Error('Failed to load resource: ' +
+          'expected text/html but was ' + ct);
+      }
+
+      return response;
+    }).then(function(response) {
+      return response.text();
+    }).then(function(data) {
       fire('load', self);
       fire('loadend', self);
       return data;
@@ -105,37 +138,8 @@
     });
   };
 
-  IncludeFragmentPrototype.fetch = function(url) {
-    return new Promise(function(resolve, reject) {
-      var xhr = new XMLHttpRequest();
-
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          var ct = xhr.getResponseHeader('Content-Type');
-          if (ct && ct.match(/^text\/html/)) {
-            resolve(xhr.responseText);
-          } else {
-            reject(
-              new Error('Failed to load resource: ' +
-                'expected text/html but was ' + ct
-              )
-            );
-          }
-        } else {
-          reject(
-            new Error('Failed to load resource: ' +
-              'the server responded with a status of ' +
-              xhr.status)
-          );
-        }
-      };
-
-      xhr.onerror = reject;
-
-      xhr.open('GET', url);
-      xhr.setRequestHeader('Accept', 'text/html');
-      xhr.send();
-    });
+  IncludeFragmentPrototype.fetch = function(request) {
+    return fetch(request);
   };
 
   window.IncludeFragmentElement = document.registerElement('include-fragment', {

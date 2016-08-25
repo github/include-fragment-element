@@ -1,25 +1,50 @@
 var count;
 
-MockXHR.responses = {
-  '/hello': function(xhr) {
-    xhr.respond(200, '<div id="replaced">hello</div>', {'Content-Type': 'text/html; charset=utf-8'});
+var responses = {
+  '/hello': function() {
+    return new Response('<div id="replaced">hello</div>', {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8'
+      }
+    });
   },
-  '/one-two': function(xhr) {
-    xhr.respond(200, '<p id="one">one</p><p id="two">two</p>', {'Content-Type': 'text/html'});
+  '/one-two': function() {
+    return new Response('<p id="one">one</p><p id="two">two</p>', {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html'
+      }
+    });
   },
-  '/blank-type': function(xhr) {
-    xhr.respond(200, '<div id="replaced">hello</div>', {'Content-Type': null});
+  '/blank-type': function() {
+    return new Response('<div id="replaced">hello</div>', {
+      status: 200,
+      headers: {
+        'Content-Type': null
+      }
+    });
   },
-  '/boom': function(xhr) {
-    xhr.respond(500, 'boom');
+  '/boom': function() {
+    return new Response('boom', {
+      status: 500
+    });
   },
-  '/count': function(xhr) {
+  '/count': function() {
     count++;
-    xhr.respond(200, ''+count, {'Content-Type': 'text/html'});
+    return new Response(''+count, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html'
+      }
+    });
   }
 };
 
-window.XMLHttpRequest = MockXHR;
+window.IncludeFragmentElement.prototype.fetch = function(request) {
+  var pathname = new URL(request.url).pathname;
+  return Promise.resolve(responses[pathname](request));
+};
 
 module('', {
   setup: function() {

@@ -16,7 +16,10 @@
   "eqnull": true,
   "browser": true,
   "globals": {
+    "fetch": false,
     "Promise": false,
+    "Request": false,
+    "Response": false,
     "WeakMap": false
   }
 }
