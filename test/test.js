@@ -189,13 +189,24 @@ asyncTest('replaces with several new elements on 200 status', 3, function() {
   });
 });
 
+asyncTest('error event is not cancelable or bubbles', 2, function() {
+  var div = document.createElement('div');
+  div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
+  document.getElementById('qunit-fixture').appendChild(div);
+
+  div.firstChild.addEventListener('error', function(event) {
+    equal(event.bubbles, false);
+    equal(event.cancelable, false);
+    start();
+  });
+});
+
 asyncTest('adds is-error class on 500 status', 1, function() {
   var div = document.createElement('div');
   div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
-  div.addEventListener('error', function(event) {
-    event.stopPropagation();
+  div.firstChild.addEventListener('error', function(event) {
     ok(document.querySelector('include-fragment').classList.contains('is-error'));
     start();
   });
@@ -206,8 +217,7 @@ asyncTest('adds is-error class on mising Content-Type', 1, function() {
   div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
-  div.addEventListener('error', function(event) {
-    event.stopPropagation();
+  div.firstChild.addEventListener('error', function(event) {
     ok(document.querySelector('include-fragment').classList.contains('is-error'));
     start();
   });
