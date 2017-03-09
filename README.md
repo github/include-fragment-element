@@ -26,7 +26,7 @@ The initial page load should include fallback content to be displayed if the res
 **Original:**
 
 ``` html
-<div class="tips">
+<div class="tip">
   <include-fragment src="/tips">
     <p>Loading tip…</p>
   </include-fragment>
@@ -38,10 +38,8 @@ On page load, the `include-fragment` element fetches the URL, the response is pa
 **Result:**
 
 ``` html
-<div class="tips">
-  <div class="tip">
-    <p>You look nice today</p>
-  </div>
+<div class="tip">
+  <p>You look nice today</p>
 </div>
 ```
 
