@@ -38,8 +38,10 @@ On page load, the `include-fragment` element fetches the URL, the response is pa
 **Result:**
 
 ``` html
-<div class="tip">
-  <p>You look nice today</p>
+<div class="tips">
+  <div class="tip">
+    <p>You look nice today</p>
+  </div>
 </div>
 ```
 
