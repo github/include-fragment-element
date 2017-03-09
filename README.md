@@ -26,7 +26,7 @@ The initial page load should include fallback content to be displayed if the res
 **Original:**
 
 ``` html
-<div class="tips">
+<div class="tip">
   <include-fragment src="/tips">
     <p>Loading tip…</p>
   </include-fragment>
