@@ -13,8 +13,11 @@
 
   function handleData(el, data) {
     return data.then(function(html) {
-      el.insertAdjacentHTML('afterend', html);
-      el.parentNode.removeChild(el);
+      var parentNode = el.parentNode;
+      if (parentNode) {
+        el.insertAdjacentHTML('afterend', html);
+        parentNode.removeChild(el);
+      }
     }, function() {
       el.classList.add('is-error');
     });
