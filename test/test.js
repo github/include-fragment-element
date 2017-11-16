@@ -176,6 +176,30 @@ asyncTest('replaces element on 200 status', 2, function() {
   });
 });
 
+asyncTest('does not replace element if it has no parent', 2, function() {
+  var div = document.createElement('div');
+  div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>';
+  document.getElementById('qunit-fixture').appendChild(div);
+
+  var fragment = div.firstChild;
+  fragment.remove();
+
+  window.addEventListener('unhandledrejection', function() {
+    ok(false);
+  });
+
+  fragment.addEventListener('load', function() {
+    equal(document.querySelector('#replaced'), null);
+    start();
+
+    div.appendChild(fragment);
+
+    setTimeout(function() {
+      equal(document.querySelector('#replaced').textContent, 'hello');
+    }, 10);
+  });
+});
+
 asyncTest('replaces with several new elements on 200 status', 3, function() {
   var div = document.createElement('div');
   div.innerHTML = '<include-fragment src="/one-two">loading</include-fragment>';
