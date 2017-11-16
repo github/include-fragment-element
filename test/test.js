@@ -206,7 +206,7 @@ asyncTest('adds is-error class on 500 status', 1, function() {
   div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
-  div.firstChild.addEventListener('error', function(event) {
+  div.firstChild.addEventListener('error', function() {
     ok(document.querySelector('include-fragment').classList.contains('is-error'));
     start();
   });
@@ -217,7 +217,7 @@ asyncTest('adds is-error class on mising Content-Type', 1, function() {
   div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>';
   document.getElementById('qunit-fixture').appendChild(div);
 
-  div.firstChild.addEventListener('error', function(event) {
+  div.firstChild.addEventListener('error', function() {
     ok(document.querySelector('include-fragment').classList.contains('is-error'));
     start();
   });
