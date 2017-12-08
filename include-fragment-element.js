@@ -10,23 +10,26 @@ export class IncludeFragmentElement extends HTMLElement {
 
   _fire(name, target) {
     setTimeout(function() {
-      var event = target.ownerDocument.createEvent('Event')
+      const event = target.ownerDocument.createEvent('Event')
       event.initEvent(name, false, false)
       target.dispatchEvent(event)
     }, 0)
   }
 
   _handleData(data) {
-    return data.then(function(html) {
-      var parentNode = this.parentNode
-      if (parentNode) {
-        this.insertAdjacentHTML('afterend', html)
-        parentNode.removeChild(this)
-      }
-    }.bind(this), function(err) {
-      console.log(err);
-      this.classList.add('is-error')
-    }.bind(this))
+    return data.then(
+      function(html) {
+        const parentNode = this.parentNode
+        if (parentNode) {
+          this.insertAdjacentHTML('afterend', html)
+          parentNode.removeChild(this)
+        }
+      }.bind(this),
+      function(err) {
+        console.log(err)
+        this.classList.add('is-error')
+      }.bind(this)
+    )
   }
 
   static get observedAttributes() {
@@ -53,8 +56,8 @@ export class IncludeFragmentElement extends HTMLElement {
   }
 
   _getData() {
-    var src = this.src
-    var data = this._privateData.get(this)
+    const src = this.src
+    let data = this._privateData.get(this)
     if (data && data.src === src) {
       return data.data
     } else {
@@ -63,7 +66,7 @@ export class IncludeFragmentElement extends HTMLElement {
       } else {
         data = Promise.reject(new Error('missing src'))
       }
-      this._privateData.set(this, {src: src, data: data})
+      this._privateData.set(this, {src, data})
       return data
     }
   }
@@ -72,10 +75,10 @@ export class IncludeFragmentElement extends HTMLElement {
     return this._getData()
   }
 
-  attributeChangedCallback(attribute, oldValue, newValue) {
+  attributeChangedCallback(attribute) {
     if (attribute === 'src') {
       // Reload data load cache.
-      var data = this._getData()
+      const data = this._getData()
 
       // Source changed after attached so replace element.
       if (this._attached) {
@@ -96,7 +99,7 @@ export class IncludeFragmentElement extends HTMLElement {
   }
 
   _request() {
-    var src = this.src
+    const src = this.src
     if (!src) {
       throw new Error('missing src')
     }
@@ -105,41 +108,47 @@ export class IncludeFragmentElement extends HTMLElement {
       method: 'GET',
       credentials: 'same-origin',
       headers: {
-        'Accept': 'text/html'
+        Accept: 'text/html'
       }
     })
   }
 
   _load() {
-    var self = this
+    const self = this
 
-    return Promise.resolve().then(function() {
-      var request = self._request()
-      self._fire('loadstart', self)
-      return self._fetch(request)
-    }).then(function(response) {
-      if (response.status !== 200) {
-        throw new Error('Failed to load resource: ' +
-          'the server responded with a status of ' + response.status)
-      }
+    return Promise.resolve()
+      .then(function() {
+        const request = self._request()
+        self._fire('loadstart', self)
+        return self._fetch(request)
+      })
+      .then(function(response) {
+        if (response.status !== 200) {
+          throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
+        }
 
-      var ct = response.headers.get('Content-Type')
-      if (!ct || !ct.match(/^text\/html/)) {
-        throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
-      }
+        const ct = response.headers.get('Content-Type')
+        if (!ct || !ct.match(/^text\/html/)) {
+          throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
+        }
 
-      return response
-    }).then(function(response) {
-      return response.text()
-    }).then(function(data) {
-      self._fire('load', self)
-      self._fire('loadend', self)
-      return data
-    }, function(error) {
-      self._fire('error', self)
-      self._fire('loadend', self)
-      throw error
-    })
+        return response
+      })
+      .then(function(response) {
+        return response.text()
+      })
+      .then(
+        function(data) {
+          self._fire('load', self)
+          self._fire('loadend', self)
+          return data
+        },
+        function(error) {
+          self._fire('error', self)
+          self._fire('loadend', self)
+          throw error
+        }
+      )
   }
 
   _fetch(request) {
