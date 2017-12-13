@@ -14,7 +14,6 @@
   },
   "scripts": {
     "test": "eslint include-fragment-element.js",
-    "build": "npm run build-umd",
-    "build-umd": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js"
+    "build": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js"
   }
 }
