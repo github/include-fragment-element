@@ -7,6 +7,12 @@
     "type": "git",
     "url": "git+https://github.com/github/include-fragment-element.git"
   },
+  "scripts": {
+    "build": "npm install && bower install",
+    "clean": "rm -rf ./bower_components ./node_modules",
+    "lint": "jshint *.js test/*.js",
+    "test": "npm run build && node-qunit-phantomjs ./test/test.html"
+  },
   "devDependencies": {
     "bower": "1.3.8",
     "jshint": "2.5.2",
