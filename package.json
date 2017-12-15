@@ -8,14 +8,13 @@
     "url": "git+https://github.com/github/include-fragment-element.git"
   },
   "scripts": {
-    "build": "npm install && bower install",
-    "clean": "rm -rf ./bower_components ./node_modules",
+    "build": "npm install",
+    "clean": "rm -rf ./node_modules",
     "lint": "jshint *.js test/*.js",
     "pretest": "npm run lint && npm run build",
     "test": "karma start ./test/karma.config.js"
   },
   "devDependencies": {
-    "bower": "1.3.8",
     "chai": "^4.1.2",
     "jshint": "2.5.2",
     "karma": "^1.7.1",

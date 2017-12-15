@@ -14,5 +14,5 @@ module.exports = function(config) {
     autoWatch: false,
     singleRun: true,
     concurrency: Infinity
-  })
-}
+  });
+};
