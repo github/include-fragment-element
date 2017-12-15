@@ -2,6 +2,11 @@
   "name": "include-fragment-element",
   "version": "3.0.1",
   "main": "include-fragment-element.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/github/include-fragment-element.git"
+  },
   "devDependencies": {
     "bower": "1.3.8",
     "jshint": "2.5.2",
