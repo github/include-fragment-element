@@ -8,10 +8,9 @@
     "url": "git+https://github.com/github/include-fragment-element.git"
   },
   "scripts": {
-    "build": "npm install",
     "clean": "rm -rf ./node_modules",
     "lint": "jshint *.js test/*.js",
-    "pretest": "npm run lint && npm run build",
+    "pretest": "npm run lint",
     "test": "karma start ./test/karma.config.js"
   },
   "devDependencies": {
