@@ -15,26 +15,12 @@
   "eqnull": true,
   "browser": true,
   "globals": {
-    "fetch": false,
     "Promise": false,
-    "Request": false,
     "Response": false,
-    "MockXHR": false,
-    "QUnit": false,
+    "assert": false,
     "module": false,
     "test": false,
-    "asyncTest": false,
-    "testDone": false,
-    "expect": false,
-    "start": false,
-    "stop": false,
-    "ok": false,
-    "equal": false,
-    "notEqual": false,
-    "deepEqual": false,
-    "notDeepEqual": false,
-    "strictEqual": false,
-    "notStrictEqual": false,
-    "raises": false
+    "setup": false,
+    "suite": false
   }
 }
