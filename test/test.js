@@ -83,72 +83,60 @@ suite('include-fragment-element', function() {
     })
   })
 
-  test('data with src property', function() {
+  test('data with src property', async function() {
     const el = document.createElement('include-fragment')
     el.src = '/hello'
 
-    el.data.then(
-      function(html) {
-        assert.equal('<div id="replaced">hello</div>', html)
-      },
-      function() {
-        assert.ok(false)
-      }
-    )
+    let html
+    try {
+      html = await el.data
+    } catch (error) {
+      assert.ok(false)
+    }
+    assert.equal('<div id="replaced">hello</div>', html)
   })
 
-  test('data with src attribute', function() {
+  test('data with src attribute', async function() {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/hello')
 
-    el.data.then(
-      function(html) {
-        assert.equal('<div id="replaced">hello</div>', html)
-      },
-      function() {
-        assert.ok(false)
-      }
-    )
+    let html
+    try {
+      html = await el.data
+    } catch (error) {
+      assert.ok(false)
+    }
+    assert.equal('<div id="replaced">hello</div>', html)
   })
 
-  test('setting data with src property multiple times', function() {
+  test('setting data with src property multiple times', async function() {
     const el = document.createElement('include-fragment')
     el.src = '/count'
 
-    el.data
-      .then(function(text) {
-        assert.equal('1', text)
-        el.src = '/count'
-      })
-      .then(function() {
-        return el.data
-      })
-      .then(function(text) {
-        assert.equal('1', text)
-      })
-      ['catch'](function() {
-        assert.ok(false)
-      })
+    let text = await el.data
+    assert.equal('1', text)
+    el.src = '/count'
+    try {
+      text = await el.data
+    } catch (error) {
+      assert.ok(false)
+    }
+    assert.equal('1', text)
   })
 
-  test('setting data with src attribute multiple times', function() {
+  test('setting data with src attribute multiple times', async function() {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/count')
 
-    el.data
-      .then(function(text) {
-        assert.equal('1', text)
-        el.setAttribute('src', '/count')
-      })
-      .then(function() {
-        return el.data
-      })
-      .then(function(text) {
-        assert.equal('1', text)
-      })
-      ['catch'](function() {
-        assert.ok(false)
-      })
+    let text = await el.data
+    assert.equal('1', text)
+    el.src = '/count'
+    try {
+      text = await el.data
+    } catch (error) {
+      assert.ok(false)
+    }
+    assert.equal('1', text)
   })
 
   test('data is not writable', function() {

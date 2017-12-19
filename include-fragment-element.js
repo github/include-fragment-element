@@ -11,19 +11,19 @@
     }, 0)
   }
 
-  function handleData(el, data) {
-    return data.then(
-      function(html) {
-        const parentNode = el.parentNode
-        if (parentNode) {
-          el.insertAdjacentHTML('afterend', html)
-          parentNode.removeChild(el)
-        }
-      },
-      function() {
-        el.classList.add('is-error')
-      }
-    )
+  async function handleData(el, data) {
+    let html
+    try {
+      html = await data
+    } catch (error) {
+      el.classList.add('is-error')
+    }
+
+    const parentNode = el.parentNode
+    if (parentNode) {
+      el.insertAdjacentHTML('afterend', html)
+      parentNode.removeChild(el)
+    }
   }
 
   const IncludeFragmentPrototype = Object.create(window.HTMLElement.prototype)
@@ -112,42 +112,30 @@
     })
   }
 
-  IncludeFragmentPrototype.load = function() {
-    const self = this
+  IncludeFragmentPrototype.load = async function() {
+    const request = await this.request()
+    fire('loadstart', this)
+    const response = await this.fetch(request)
+    if (response.status !== 200) {
+      throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
+    }
 
-    return Promise.resolve()
-      .then(function() {
-        const request = self.request()
-        fire('loadstart', self)
-        return self.fetch(request)
-      })
-      .then(function(response) {
-        if (response.status !== 200) {
-          throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
-        }
+    const ct = response.headers.get('Content-Type')
+    if (!ct || !ct.match(/^text\/html/)) {
+      throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
+    }
 
-        const ct = response.headers.get('Content-Type')
-        if (!ct || !ct.match(/^text\/html/)) {
-          throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
-        }
-
-        return response
-      })
-      .then(function(response) {
-        return response.text()
-      })
-      .then(
-        function(data) {
-          fire('load', self)
-          fire('loadend', self)
-          return data
-        },
-        function(error) {
-          fire('error', self)
-          fire('loadend', self)
-          throw error
-        }
-      )
+    let data
+    try {
+      data = await response.text()
+    } catch (error) {
+      fire('error', this)
+      fire('loadend', this)
+      throw error
+    }
+    fire('load', this)
+    fire('loadend', this)
+    return data
   }
 
   IncludeFragmentPrototype.fetch = function(request) {
