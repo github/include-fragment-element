@@ -17,14 +17,11 @@
     "chai": "^4.1.2",
     "eslint": "^4.13.1",
     "eslint-plugin-github": "^0.20.1",
-    "eslint-plugin-mocha": "^4.11.0",
-    "jshint": "2.5.2",
     "karma": "^1.7.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
-    "mocha": "^4.0.1",
-    "node-qunit-phantomjs": "0.2.2"
+    "mocha": "^4.0.1"
   }
 }
