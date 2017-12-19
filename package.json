@@ -7,10 +7,16 @@
     "type": "git",
     "url": "git+https://github.com/github/include-fragment-element.git"
   },
+  "main": "dist/index-umd.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "babel include-fragment-element.js -o dist/index-umd.js",
-    "clean": "rm -rf ./node_modules",
+    "clean": "rm -rf ./node_modules ./dist",
     "lint": "eslint include-fragment-element.js test/*.js",
+    "prebuild": "npm run clean && mkdir dist",
+    "prepublishOnly": "npm run build",
     "pretest": "npm run lint",
     "test": "karma start ./test/karma.config.js"
   },
