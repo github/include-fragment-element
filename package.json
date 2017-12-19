@@ -9,12 +9,15 @@
   },
   "scripts": {
     "clean": "rm -rf ./node_modules",
-    "lint": "jshint *.js test/*.js",
+    "lint": "eslint include-fragment-element.js test/*.js",
     "pretest": "npm run lint",
     "test": "karma start ./test/karma.config.js"
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "eslint": "^4.13.1",
+    "eslint-plugin-github": "^0.20.1",
+    "eslint-plugin-mocha": "^4.11.0",
     "jshint": "2.5.2",
     "karma": "^1.7.1",
     "karma-chai": "^0.1.0",

@@ -1,10 +1,7 @@
 module.exports = function(config) {
   config.set({
     frameworks: ['mocha', 'chai'],
-    files: [
-      '../include-fragment-element.js',
-      'test.js'
-    ],
+    files: ['../include-fragment-element.js', 'test.js'],
     reporters: ['mocha'],
     port: 9876,
     client: {mocha: {ui: 'tdd'}},
@@ -14,5 +11,5 @@ module.exports = function(config) {
     autoWatch: false,
     singleRun: true,
     concurrency: Infinity
-  });
-};
+  })
+}
