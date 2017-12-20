@@ -1,3 +1,5 @@
+/* eslint-disable github/no-then */
+
 ;(function() {
   'use strict'
 
