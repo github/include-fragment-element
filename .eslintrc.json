@@ -1,7 +1,4 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 2017
-  },
   "extends": [
     "plugin:github/es6",
     "plugin:github/browser"
