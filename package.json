@@ -1,19 +1,18 @@
 {
   "name": "include-fragment-element",
   "version": "3.0.1",
-  "main": "include-fragment-element.js",
+  "main": "dist/index-umd.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/github/include-fragment-element.git"
   },
-  "main": "dist/index-umd.js",
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "babel include-fragment-element.js -o dist/index-umd.js",
-    "clean": "rm -rf ./node_modules ./dist",
+    "clean": "rm -rf ./dist",
     "lint": "eslint include-fragment-element.js test/*.js",
     "prebuild": "npm run clean && mkdir dist",
     "prepublishOnly": "npm run build",
@@ -22,7 +21,6 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "chai": "^4.1.2",
     "eslint": "^4.13.1",
