@@ -1,27 +1,35 @@
 {
   "name": "include-fragment-element",
   "version": "3.0.1",
-  "main": "include-fragment-element.js",
+  "main": "dist/index-umd.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/github/include-fragment-element.git"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "clean": "rm -rf ./node_modules",
-    "lint": "jshint *.js test/*.js",
+    "build": "babel include-fragment-element.js -o dist/index-umd.js",
+    "clean": "rm -rf ./dist",
+    "lint": "eslint include-fragment-element.js test/*.js",
+    "prebuild": "npm run clean && mkdir dist",
+    "prepublishOnly": "npm run build",
     "pretest": "npm run lint",
     "test": "karma start ./test/karma.config.js"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
     "chai": "^4.1.2",
-    "jshint": "2.5.2",
+    "eslint": "^4.13.1",
+    "eslint-plugin-github": "^0.20.1",
     "karma": "^1.7.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
-    "mocha": "^4.0.1",
-    "node-qunit-phantomjs": "0.2.2"
+    "mocha": "^4.0.1"
   }
 }
