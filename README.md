@@ -11,10 +11,12 @@ Available on [Bower](http://bower.io) as **include-fragment-element**.
 $ bower install include-fragment-element
 ```
 
-This component is built on the [Web Component](http://webcomponents.org/) stack. Specifically, it requires a feature called [Custom Elements](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/). You'll need to use a polyfill to get this feature today. Either the [Polymer](http://www.polymer-project.org/) or [X-Tag](http://www.x-tags.org/) frameworks supply a polyfill, or you can install the standalone [CustomElements](https://github.com/Polymer/CustomElements) polyfill.
+This component is built on the [Web Component](http://webcomponents.org/) stack. Specifically, it requires a feature called [Custom Elements](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/). You'll need to use a polyfill to get this feature today. Either the [Polymer](http://www.polymer-project.org/) or [X-Tag](http://www.x-tags.org/) frameworks supply a polyfill, or you can install the standalone [CustomElements](https://github.com/webcomponents/webcomponentsjs) polyfill.
+
+Legacy browsers require other generic polyfills. See `examples/index.html` for details.
 
 ``` html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/polymer/0.3.4/platform.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/webcomponents-hi-ce.js"></script>
 ```
 
 ## Usage
