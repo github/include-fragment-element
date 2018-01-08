@@ -1,3 +1,5 @@
+/* eslint-disable github/no-then */
+
 export class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
@@ -25,8 +27,7 @@ export class IncludeFragmentElement extends HTMLElement {
           parentNode.removeChild(this)
         }
       }.bind(this),
-      function(err) {
-        console.log(err)
+      function() {
         this.classList.add('is-error')
       }.bind(this)
     )
@@ -157,5 +158,6 @@ export class IncludeFragmentElement extends HTMLElement {
 }
 
 if (!window.customElements.get('include-fragment')) {
+  window.IncludeFragmentElement = IncludeFragmentElement
   window.customElements.define('include-fragment', IncludeFragmentElement)
 }

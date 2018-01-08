@@ -1,7 +1,7 @@
 module.exports = function(config) {
   config.set({
     frameworks: ['mocha', 'chai'],
-    files: ['../include-fragment-element.js', 'test.js'],
+    files: ['../dist/index-umd.js', 'test.js'],
     reporters: ['mocha'],
     port: 9876,
     client: {mocha: {ui: 'tdd'}},
