@@ -8,30 +8,28 @@ export class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  _fire(name) {
-    setTimeout(
-      function() {
-        const event = this.ownerDocument.createEvent('Event')
-        event.initEvent(name, false, false)
-        this.dispatchEvent(event)
-      }.bind(this),
-      0
-    )
+  _fire(name, target) {
+    setTimeout(function() {
+      const event = target.ownerDocument.createEvent('Event')
+      event.initEvent(name, false, false)
+      target.dispatchEvent(event)
+    }, 0)
   }
 
-  async _handleData(data) {
-    try {
-      const html = await data
-      const parentNode = this.parentNode
-      if (parentNode) {
-        this.insertAdjacentHTML('afterend', html)
-        parentNode.removeChild(this)
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.log(err)
-      this.classList.add('is-error')
-    }
+  _handleData(data) {
+    return data.then(
+      function(html) {
+        const parentNode = this.parentNode
+        if (parentNode) {
+          this.insertAdjacentHTML('afterend', html)
+          parentNode.removeChild(this)
+        }
+      }.bind(this),
+      function(err) {
+        console.log(err)
+        this.classList.add('is-error')
+      }.bind(this)
+    )
   }
 
   static get observedAttributes() {
@@ -115,30 +113,42 @@ export class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  async _load() {
-    const request = this._request()
-    this._fire('loadstart')
-    const response = await this._fetch(request)
+  _load() {
+    const self = this
 
-    if (response.status !== 200) {
-      throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
-    }
+    return Promise.resolve()
+      .then(function() {
+        const request = self._request()
+        self._fire('loadstart', self)
+        return self._fetch(request)
+      })
+      .then(function(response) {
+        if (response.status !== 200) {
+          throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
+        }
 
-    const ct = response.headers.get('Content-Type')
-    if (!ct || !ct.match(/^text\/html/)) {
-      throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
-    }
+        const ct = response.headers.get('Content-Type')
+        if (!ct || !ct.match(/^text\/html/)) {
+          throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
+        }
 
-    try {
-      const data = await response.text()
-      this._fire('load')
-      this._fire('loadend')
-      return data
-    } catch (error) {
-      this._fire('error')
-      this._fire('loadend')
-      throw error
-    }
+        return response
+      })
+      .then(function(response) {
+        return response.text()
+      })
+      .then(
+        function(data) {
+          self._fire('load', self)
+          self._fire('loadend', self)
+          return data
+        },
+        function(error) {
+          self._fire('error', self)
+          self._fire('loadend', self)
+          throw error
+        }
+      )
   }
 
   _fetch(request) {
