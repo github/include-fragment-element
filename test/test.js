@@ -1,13 +1,16 @@
-var count;
+/* eslint-env mocha */
+/* eslint-disable github/no-then */
+/* global assert */
 
-var responses = {
+let count
+const responses = {
   '/hello': function() {
     return new Response('<div id="replaced">hello</div>', {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8'
       }
-    });
+    })
   },
   '/one-two': function() {
     return new Response('<p id="one">one</p><p id="two">two</p>', {
@@ -15,7 +18,7 @@ var responses = {
       headers: {
         'Content-Type': 'text/html'
       }
-    });
+    })
   },
   '/blank-type': function() {
     return new Response('<div id="replaced">hello</div>', {
@@ -23,242 +26,241 @@ var responses = {
       headers: {
         'Content-Type': null
       }
-    });
+    })
   },
   '/boom': function() {
     return new Response('boom', {
       status: 500
-    });
+    })
   },
   '/count': function() {
-    count++;
-    return new Response(''+count, {
+    count++
+    return new Response(`${count}`, {
       status: 200,
       headers: {
         'Content-Type': 'text/html'
       }
-    });
+    })
   }
-};
+}
 
 window.IncludeFragmentElement.prototype.fetch = function(request) {
-  var pathname = new URL(request.url).pathname;
-  return Promise.resolve(responses[pathname](request));
-};
+  const pathname = new URL(request.url).pathname
+  return Promise.resolve(responses[pathname](request))
+}
 
-module('', {
-  setup: function() {
-    count = 0;
-  }
-});
+setup(function() {
+  count = 0
+})
 
+suite('include-fragment-element', function() {
+  test('create from document.createElement', function() {
+    const el = document.createElement('include-fragment')
+    assert.equal('INCLUDE-FRAGMENT', el.nodeName)
+  })
 
-test('create from document.createElement', function() {
-  var el = document.createElement('include-fragment');
-  equal('INCLUDE-FRAGMENT', el.nodeName);
-});
+  test('create from constructor', function() {
+    const el = new window.IncludeFragmentElement()
+    assert.equal('INCLUDE-FRAGMENT', el.nodeName)
+  })
 
-test('create from constructor', function() {
-  var el = new window.IncludeFragmentElement();
-  equal('INCLUDE-FRAGMENT', el.nodeName);
-});
+  test('src property', function() {
+    const el = document.createElement('include-fragment')
+    assert.equal(null, el.getAttribute('src'))
+    assert.equal('', el.src)
 
-test('src property', function() {
-  var el = document.createElement('include-fragment');
-  equal(null, el.getAttribute('src'));
-  equal('', el.src);
+    el.src = '/hello'
+    assert.equal('/hello', el.getAttribute('src'))
+    const link = document.createElement('a')
+    link.href = '/hello'
+    assert.equal(link.href, el.src)
+  })
 
-  el.src = '/hello';
-  equal('/hello', el.getAttribute('src'));
-  var link = document.createElement('a');
-  link.href = '/hello';
-  equal(link.href, el.src);
-});
+  test('initial data is in error state', function() {
+    const el = document.createElement('include-fragment')
 
-asyncTest('initial data is in error state', 1, function() {
-  var el = document.createElement('include-fragment');
+    el.data['catch'](function(error) {
+      assert.ok(error)
+    })
+  })
 
-  el.data['catch'](function(error) {
-    ok(error);
-    start();
-  });
-});
+  test('data with src property', function() {
+    const el = document.createElement('include-fragment')
+    el.src = '/hello'
 
-asyncTest('data with src property', 1, function() {
-  var el = document.createElement('include-fragment');
-  el.src = '/hello';
+    el.data.then(
+      function(html) {
+        assert.equal('<div id="replaced">hello</div>', html)
+      },
+      function() {
+        assert.ok(false)
+      }
+    )
+  })
 
-  el.data.then(function(html) {
-    equal('<div id="replaced">hello</div>', html);
-    start();
-  }, function() {
-    ok(false);
-    start();
-  });
-});
+  test('data with src attribute', function() {
+    const el = document.createElement('include-fragment')
+    el.setAttribute('src', '/hello')
 
-asyncTest('data with src attribute', 1, function() {
-  var el = document.createElement('include-fragment');
-  el.setAttribute('src', '/hello');
+    el.data.then(
+      function(html) {
+        assert.equal('<div id="replaced">hello</div>', html)
+      },
+      function() {
+        assert.ok(false)
+      }
+    )
+  })
 
-  el.data.then(function(html) {
-    equal('<div id="replaced">hello</div>', html);
-    start();
-  }, function() {
-    ok(false);
-    start();
-  });
-});
+  test('setting data with src property multiple times', function() {
+    const el = document.createElement('include-fragment')
+    el.src = '/count'
 
-asyncTest('setting data with src property multiple times', 2, function() {
-  var el = document.createElement('include-fragment');
-  el.src = '/count';
+    el.data
+      .then(function(text) {
+        assert.equal('1', text)
+        el.src = '/count'
+      })
+      .then(function() {
+        return el.data
+      })
+      .then(function(text) {
+        assert.equal('1', text)
+      })
+      ['catch'](function() {
+        assert.ok(false)
+      })
+  })
 
-  el.data.then(function(text) {
-    equal('1', text);
-    el.src = '/count';
-  }).then(function() {
-    return el.data;
-  }).then(function(text) {
-    equal('1', text);
-    start();
-  })['catch'](function() {
-    ok(false);
-    start();
-  });
-});
+  test('setting data with src attribute multiple times', function() {
+    const el = document.createElement('include-fragment')
+    el.setAttribute('src', '/count')
 
-asyncTest('setting data with src attribute multiple times', 2, function() {
-  var el = document.createElement('include-fragment');
-  el.setAttribute('src', '/count');
+    el.data
+      .then(function(text) {
+        assert.equal('1', text)
+        el.setAttribute('src', '/count')
+      })
+      .then(function() {
+        return el.data
+      })
+      .then(function(text) {
+        assert.equal('1', text)
+      })
+      ['catch'](function() {
+        assert.ok(false)
+      })
+  })
 
-  el.data.then(function(text) {
-    equal('1', text);
-    el.setAttribute('src', '/count');
-  }).then(function() {
-    return el.data;
-  }).then(function(text) {
-    equal('1', text);
-    start();
-  })['catch'](function() {
-    ok(false);
-    start();
-  });
-});
+  test('data is not writable', function() {
+    const el = document.createElement('include-fragment')
+    assert.ok(el.data !== 42)
+    try {
+      el.data = 42
+    } finally {
+      assert.ok(el.data !== 42)
+    }
+  })
 
-test('data is not writable', 2, function() {
-  var el = document.createElement('include-fragment');
-  ok(el.data !== 42);
-  try {
-    el.data = 42;
-  } catch(e) {}
-  ok(el.data !== 42);
-});
+  test('data is not configurable', function() {
+    const el = document.createElement('include-fragment')
+    assert.ok(el.data !== undefined)
+    try {
+      delete el.data
+    } finally {
+      assert.ok(el.data !== undefined)
+    }
+  })
 
-test('data is not configurable', 2, function() {
-  var el = document.createElement('include-fragment');
-  ok(el.data !== undefined);
-  try {
-    delete el.data;
-  } catch(e) {}
-  ok(el.data !== undefined);
-});
+  test('replaces element on 200 status', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>'
+    document.body.appendChild(div)
 
-asyncTest('replaces element on 200 status', 2, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
+    div.firstChild.addEventListener('load', function() {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
+  })
 
-  div.firstChild.addEventListener('load', function() {
-    equal(document.querySelector('include-fragment'), null);
-    equal(document.querySelector('#replaced').textContent, 'hello');
-    start();
-  });
-});
+  test('does not replace element if it has no parent', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>'
+    document.body.appendChild(div)
 
-asyncTest('does not replace element if it has no parent', 2, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
+    const fragment = div.firstChild
+    fragment.remove()
 
-  var fragment = div.firstChild;
-  fragment.remove();
+    window.addEventListener('unhandledrejection', function() {
+      assert.ok(false)
+    })
 
-  window.addEventListener('unhandledrejection', function() {
-    ok(false);
-  });
+    fragment.addEventListener('load', function() {
+      assert.equal(document.querySelector('#replaced'), null)
 
-  fragment.addEventListener('load', function() {
-    equal(document.querySelector('#replaced'), null);
-    start();
+      div.appendChild(fragment)
 
-    div.appendChild(fragment);
+      setTimeout(function() {
+        assert.equal(document.querySelector('#replaced').textContent, 'hello')
+      }, 10)
+    })
+  })
+
+  test('replaces with several new elements on 200 status', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/one-two">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    div.firstChild.addEventListener('load', function() {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#one').textContent, 'one')
+      assert.equal(document.querySelector('#two').textContent, 'two')
+    })
+  })
+
+  test('error event is not cancelable or bubbles', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    div.firstChild.addEventListener('error', function(event) {
+      assert.equal(event.bubbles, false)
+      assert.equal(event.cancelable, false)
+    })
+  })
+
+  test('adds is-error class on 500 status', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    div.firstChild.addEventListener('error', function() {
+      assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
+    })
+  })
+
+  test('adds is-error class on mising Content-Type', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    div.firstChild.addEventListener('error', function() {
+      assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
+    })
+  })
+
+  test('replaces element when src attribute is changed', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment>loading</include-fragment>'
+    document.body.appendChild(div)
+
+    div.firstChild.addEventListener('load', function() {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
 
     setTimeout(function() {
-      equal(document.querySelector('#replaced').textContent, 'hello');
-    }, 10);
-  });
-});
-
-asyncTest('replaces with several new elements on 200 status', 3, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/one-two">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
-
-  div.firstChild.addEventListener('load', function() {
-    equal(document.querySelector('include-fragment'), null);
-    equal(document.querySelector('#one').textContent, 'one');
-    equal(document.querySelector('#two').textContent, 'two');
-    start();
-  });
-});
-
-asyncTest('error event is not cancelable or bubbles', 2, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
-
-  div.firstChild.addEventListener('error', function(event) {
-    equal(event.bubbles, false);
-    equal(event.cancelable, false);
-    start();
-  });
-});
-
-asyncTest('adds is-error class on 500 status', 1, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
-
-  div.firstChild.addEventListener('error', function() {
-    ok(document.querySelector('include-fragment').classList.contains('is-error'));
-    start();
-  });
-});
-
-asyncTest('adds is-error class on mising Content-Type', 1, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
-
-  div.firstChild.addEventListener('error', function() {
-    ok(document.querySelector('include-fragment').classList.contains('is-error'));
-    start();
-  });
-});
-
-asyncTest('replaces element when src attribute is changed', 2, function() {
-  var div = document.createElement('div');
-  div.innerHTML = '<include-fragment>loading</include-fragment>';
-  document.getElementById('qunit-fixture').appendChild(div);
-
-  div.firstChild.addEventListener('load', function() {
-    equal(document.querySelector('include-fragment'), null);
-    equal(document.querySelector('#replaced').textContent, 'hello');
-    start();
-  });
-
-  setTimeout(function() {
-    div.firstChild.src = '/hello';
-  }, 10);
-});
+      div.firstChild.src = '/hello'
+    }, 10)
+  })
+})
