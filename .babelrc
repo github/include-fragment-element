@@ -2,7 +2,6 @@
   "env": {
     "umd": {
       "plugins": [
-        "transform-async-to-generator",
         "transform-custom-element-classes",
         "transform-es2015-modules-umd"
       ],
