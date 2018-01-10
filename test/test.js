@@ -44,7 +44,7 @@ const responses = {
   }
 }
 
-window.IncludeFragmentElement.prototype._fetch = function(request) {
+window.IncludeFragmentElement.prototype.fetch = function(request) {
   const pathname = new URL(request.url).pathname
   return Promise.resolve(responses[pathname](request))
 }

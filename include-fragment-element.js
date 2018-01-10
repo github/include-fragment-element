@@ -1,36 +1,37 @@
 /* eslint-disable github/no-then */
 
+const privateData = new WeakMap()
+
+function fire(name, target) {
+  setTimeout(function() {
+    const event = target.ownerDocument.createEvent('Event')
+    event.initEvent(name, false, false)
+    target.dispatchEvent(event)
+  }, 0)
+}
+
+function handleData(data, target) {
+  return data.then(
+    function(html) {
+      const parentNode = target.parentNode
+      if (parentNode) {
+        target.insertAdjacentHTML('afterend', html)
+        parentNode.removeChild(target)
+      }
+    },
+    function() {
+      target.classList.add('is-error')
+    }
+  )
+}
+
 export class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
-    this._privateData = new WeakMap()
     // Preload data cache
-    this._getData()['catch'](function() {
+    this.getData()['catch'](function() {
       // Ignore `src missing` error on pre-load.
     })
-  }
-
-  _fire(name, target) {
-    setTimeout(function() {
-      const event = target.ownerDocument.createEvent('Event')
-      event.initEvent(name, false, false)
-      target.dispatchEvent(event)
-    }, 0)
-  }
-
-  _handleData(data) {
-    return data.then(
-      function(html) {
-        const parentNode = this.parentNode
-        if (parentNode) {
-          this.insertAdjacentHTML('afterend', html)
-          parentNode.removeChild(this)
-        }
-      }.bind(this),
-      function() {
-        this.classList.add('is-error')
-      }.bind(this)
-    )
   }
 
   static get observedAttributes() {
@@ -56,34 +57,34 @@ export class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  _getData() {
+  getData() {
     const src = this.src
-    let data = this._privateData.get(this)
+    let data = privateData.get(this)
     if (data && data.src === src) {
       return data.data
     } else {
       if (src) {
-        data = this._load()
+        data = this.load()
       } else {
         data = Promise.reject(new Error('missing src'))
       }
-      this._privateData.set(this, {src, data})
+      privateData.set(this, {src, data})
       return data
     }
   }
 
   get data() {
-    return this._getData()
+    return this.getData()
   }
 
   attributeChangedCallback(attribute) {
     if (attribute === 'src') {
       // Reload data load cache.
-      const data = this._getData()
+      const data = this.getData()
 
       // Source changed after attached so replace element.
       if (this._attached) {
-        this._handleData(data)
+        handleData(data, this)
       }
     }
   }
@@ -91,7 +92,7 @@ export class IncludeFragmentElement extends HTMLElement {
   connectedCallback() {
     this._attached = true
     if (this.src) {
-      this._handleData(this._getData())
+      handleData(this.getData(), this)
     }
   }
 
@@ -99,7 +100,7 @@ export class IncludeFragmentElement extends HTMLElement {
     this._attached = false
   }
 
-  _request() {
+  request() {
     const src = this.src
     if (!src) {
       throw new Error('missing src')
@@ -114,14 +115,14 @@ export class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  _load() {
+  load() {
     const self = this
 
     return Promise.resolve()
       .then(function() {
-        const request = self._request()
-        self._fire('loadstart', self)
-        return self._fetch(request)
+        const request = self.request()
+        fire('loadstart', self)
+        return self.fetch(request)
       })
       .then(function(response) {
         if (response.status !== 200) {
@@ -140,19 +141,19 @@ export class IncludeFragmentElement extends HTMLElement {
       })
       .then(
         function(data) {
-          self._fire('load', self)
-          self._fire('loadend', self)
+          fire('load', self)
+          fire('loadend', self)
           return data
         },
         function(error) {
-          self._fire('error', self)
-          self._fire('loadend', self)
+          fire('error', self)
+          fire('loadend', self)
           throw error
         }
       )
   }
 
-  _fetch(request) {
+  fetch(request) {
     return fetch(request)
   }
 }
