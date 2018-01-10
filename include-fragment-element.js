@@ -10,17 +10,17 @@ function fire(name, target) {
   }, 0)
 }
 
-function handleData(data, target) {
+function handleData(el, data) {
   return data.then(
     function(html) {
-      const parentNode = target.parentNode
+      const parentNode = el.parentNode
       if (parentNode) {
-        target.insertAdjacentHTML('afterend', html)
-        parentNode.removeChild(target)
+        el.insertAdjacentHTML('afterend', html)
+        parentNode.removeChild(el)
       }
     },
     function() {
-      target.classList.add('is-error')
+      el.classList.add('is-error')
     }
   )
 }
@@ -84,7 +84,7 @@ export class IncludeFragmentElement extends HTMLElement {
 
       // Source changed after attached so replace element.
       if (this._attached) {
-        handleData(data, this)
+        handleData(this, data)
       }
     }
   }
@@ -92,7 +92,7 @@ export class IncludeFragmentElement extends HTMLElement {
   connectedCallback() {
     this._attached = true
     if (this.src) {
-      handleData(this.getData(), this)
+      handleData(this, this.getData())
     }
   }
 
