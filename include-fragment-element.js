@@ -25,11 +25,27 @@ function handleData(el, data) {
   )
 }
 
+function getData(el) {
+  const src = el.src
+  let data = privateData.get(el)
+  if (data && data.src === src) {
+    return data.data
+  } else {
+    if (src) {
+      data = el.load()
+    } else {
+      data = Promise.reject(new Error('missing src'))
+    }
+    privateData.set(el, {src, data})
+    return data
+  }
+}
+
 export class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
     // Preload data cache
-    this.getData()['catch'](function() {
+    getData(this)['catch'](function() {
       // Ignore `src missing` error on pre-load.
     })
   }
@@ -57,30 +73,14 @@ export class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  getData() {
-    const src = this.src
-    let data = privateData.get(this)
-    if (data && data.src === src) {
-      return data.data
-    } else {
-      if (src) {
-        data = this.load()
-      } else {
-        data = Promise.reject(new Error('missing src'))
-      }
-      privateData.set(this, {src, data})
-      return data
-    }
-  }
-
   get data() {
-    return this.getData()
+    return getData(this)
   }
 
   attributeChangedCallback(attribute) {
     if (attribute === 'src') {
       // Reload data load cache.
-      const data = this.getData()
+      const data = getData(this)
 
       // Source changed after attached so replace element.
       if (this._attached) {
@@ -92,7 +92,7 @@ export class IncludeFragmentElement extends HTMLElement {
   connectedCallback() {
     this._attached = true
     if (this.src) {
-      handleData(this, this.getData())
+      handleData(this, getData(this))
     }
   }
 
