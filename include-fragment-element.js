@@ -1,76 +1,84 @@
 /* eslint-disable github/no-then */
 
-;(function() {
-  'use strict'
+const privateData = new WeakMap()
 
-  const privateData = new WeakMap()
+function fire(name, target) {
+  setTimeout(function() {
+    const event = target.ownerDocument.createEvent('Event')
+    event.initEvent(name, false, false)
+    target.dispatchEvent(event)
+  }, 0)
+}
 
-  function fire(name, target) {
-    setTimeout(function() {
-      const event = target.ownerDocument.createEvent('Event')
-      event.initEvent(name, false, false)
-      target.dispatchEvent(event)
-    }, 0)
-  }
-
-  function handleData(el, data) {
-    return data.then(
-      function(html) {
-        const parentNode = el.parentNode
-        if (parentNode) {
-          el.insertAdjacentHTML('afterend', html)
-          parentNode.removeChild(el)
-        }
-      },
-      function() {
-        el.classList.add('is-error')
-      }
-    )
-  }
-
-  const IncludeFragmentPrototype = Object.create(window.HTMLElement.prototype)
-
-  Object.defineProperty(IncludeFragmentPrototype, 'src', {
-    get() {
-      const src = this.getAttribute('src')
-      if (src) {
-        const link = this.ownerDocument.createElement('a')
-        link.href = src
-        return link.href
-      } else {
-        return ''
+function handleData(el, data) {
+  return data.then(
+    function(html) {
+      const parentNode = el.parentNode
+      if (parentNode) {
+        el.insertAdjacentHTML('afterend', html)
+        parentNode.removeChild(el)
       }
     },
-
-    set(value) {
-      this.setAttribute('src', value)
+    function() {
+      el.classList.add('is-error')
     }
-  })
+  )
+}
 
-  function getData(el) {
-    const src = el.src
-    let data = privateData.get(el)
-    if (data && data.src === src) {
-      return data.data
+function getData(el) {
+  const src = el.src
+  let data = privateData.get(el)
+  if (data && data.src === src) {
+    return data.data
+  } else {
+    if (src) {
+      data = el.load()
     } else {
-      if (src) {
-        data = el.load()
-      } else {
-        data = Promise.reject(new Error('missing src'))
-      }
-      privateData.set(el, {src, data})
-      return data
+      data = Promise.reject(new Error('missing src'))
+    }
+    privateData.set(el, {src, data})
+    return data
+  }
+}
+
+export class IncludeFragmentElement extends HTMLElement {
+  constructor() {
+    super()
+    // Preload data cache
+    getData(this)['catch'](function() {
+      // Ignore `src missing` error on pre-load.
+    })
+  }
+
+  static get observedAttributes() {
+    return ['src']
+  }
+
+  get src() {
+    const src = this.getAttribute('src')
+    if (src) {
+      const link = this.ownerDocument.createElement('a')
+      link.href = src
+      return link.href
+    } else {
+      return ''
     }
   }
 
-  Object.defineProperty(IncludeFragmentPrototype, 'data', {
-    get() {
-      return getData(this)
+  set src(val) {
+    if (val) {
+      this.setAttribute('src', val)
+    } else {
+      this.removeAttribute('src')
     }
-  })
+  }
 
-  IncludeFragmentPrototype.attributeChangedCallback = function(attrName) {
-    if (attrName === 'src') {
+  get data() {
+    return getData(this)
+  }
+
+  attributeChangedCallback(attribute) {
+    if (attribute === 'src') {
       // Reload data load cache.
       const data = getData(this)
 
@@ -81,25 +89,18 @@
     }
   }
 
-  IncludeFragmentPrototype.createdCallback = function() {
-    // Preload data cache
-    getData(this)['catch'](function() {
-      // Ignore `src missing` error on pre-load.
-    })
-  }
-
-  IncludeFragmentPrototype.attachedCallback = function() {
+  connectedCallback() {
     this._attached = true
     if (this.src) {
       handleData(this, getData(this))
     }
   }
 
-  IncludeFragmentPrototype.detachedCallback = function() {
+  disconnectedCallback() {
     this._attached = false
   }
 
-  IncludeFragmentPrototype.request = function() {
+  request() {
     const src = this.src
     if (!src) {
       throw new Error('missing src')
@@ -114,7 +115,7 @@
     })
   }
 
-  IncludeFragmentPrototype.load = function() {
+  load() {
     const self = this
 
     return Promise.resolve()
@@ -152,11 +153,12 @@
       )
   }
 
-  IncludeFragmentPrototype.fetch = function(request) {
+  fetch(request) {
     return fetch(request)
   }
+}
 
-  window.IncludeFragmentElement = document.registerElement('include-fragment', {
-    prototype: IncludeFragmentPrototype
-  })
-})()
+if (!window.customElements.get('include-fragment')) {
+  window.IncludeFragmentElement = IncludeFragmentElement
+  window.customElements.define('include-fragment', IncludeFragmentElement)
+}
