@@ -1,6 +1,6 @@
 {
   "name": "include-fragment-element",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "main": "dist/index-umd.js",
   "license": "MIT",
   "repository": {
