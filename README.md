@@ -83,6 +83,6 @@ A proxy may attempt to fetch and replace the fragment if the request finishes be
 
 - Chrome
 - Firefox
-- Safari 6.1+
-- Internet Explorer 9+
+- Safari 9+
+- Internet Explorer 11+
 - Microsoft Edge
