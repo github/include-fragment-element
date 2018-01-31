@@ -17,6 +17,10 @@ function handleData(el, data) {
       if (parentNode) {
         el.insertAdjacentHTML('afterend', html)
         parentNode.removeChild(el)
+
+        // Hack to get custom elements in html upgraded
+        // https://github.com/webcomponents/custom-elements/issues/104
+        parentNode.innerHTML = parentNode.innerHTML
       }
     },
     function() {
