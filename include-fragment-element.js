@@ -15,12 +15,14 @@ function handleData(el, data) {
     function(html) {
       const parentNode = el.parentNode
       if (parentNode) {
-        el.insertAdjacentHTML('afterend', html)
-        parentNode.removeChild(el)
-
-        // Hack to get custom elements in html upgraded
-        // https://github.com/webcomponents/custom-elements/issues/104
-        parentNode.innerHTML = parentNode.innerHTML
+        const div = document.createElement('div')
+        el.insertAdjacentElement('beforebegin', div)
+        div.innerHTML = html
+        while (div.childNodes.length > 0) {
+          div.before(div.childNodes[0])
+        }
+        div.remove()
+        el.remove()
       }
     },
     function() {
