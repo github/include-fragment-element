@@ -21,8 +21,8 @@ function handleData(el, data) {
         while (div.childNodes.length > 0) {
           fragment.appendChild(div.childNodes[0])
         }
-        el.before(fragment)
-        el.remove()
+        parentNode.insertBefore(fragment, el)
+        parentNode.removeChild(el)
       }
     },
     function() {
