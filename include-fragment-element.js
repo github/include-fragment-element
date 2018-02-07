@@ -16,12 +16,12 @@ function handleData(el, data) {
       const parentNode = el.parentNode
       if (parentNode) {
         const div = document.createElement('div')
-        el.insertAdjacentElement('beforebegin', div)
+        const fragment = new DocumentFragment()
         div.innerHTML = html
         while (div.childNodes.length > 0) {
-          div.before(div.childNodes[0])
+          fragment.appendChild(div.childNodes[0])
         }
-        div.remove()
+        el.before(fragment)
         el.remove()
       }
     },
