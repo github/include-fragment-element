@@ -312,28 +312,4 @@ suite('include-fragment-element', function() {
       elem.src = '/hello'
     }, 10)
   })
-
-  test('only loads when called if the lazyload property is set.', done => {
-    let hasRun = false
-    const elem = document.createElement('include-fragment')
-    elem.src = '/hello'
-    elem.lazyload = true
-
-    elem.addEventListener('loadstart', () => {
-      hasRun = true
-    })
-
-    elem.addEventListener('loadend', () => {
-      checkAsync(done, () => {
-        assert.ok(document.querySelector('#replaced'))
-      })
-    })
-
-    document.body.appendChild(elem)
-
-    setTimeout(function() {
-      assert.ok(!hasRun)
-      elem.get()
-    }, 10)
-  })
 })

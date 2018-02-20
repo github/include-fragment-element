@@ -69,17 +69,6 @@ export class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  get lazyload() {
-    return this.hasAttribute('lazyload')
-  }
-  set lazyload(val) {
-    if (val) {
-      this.setAttribute('lazyload', '')
-    } else {
-      this.removeAttribute('lazyload')
-    }
-  }
-
   get data() {
     return getData(this)
   }
@@ -148,10 +137,6 @@ export class IncludeFragmentElement extends HTMLElement {
           throw error
         }
       )
-  }
-
-  get() {
-    handleData(this)
   }
 
   fetch(request) {
