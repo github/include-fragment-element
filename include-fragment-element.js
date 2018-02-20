@@ -10,8 +10,8 @@ function fire(name, target) {
   }, 0)
 }
 
-function handleData(el, data) {
-  return data.then(
+function handleData(el) {
+  return getData(el).then(
     function(html) {
       const parentNode = el.parentNode
       if (parentNode) {
@@ -44,10 +44,6 @@ function getData(el) {
 export class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
-    // Preload data cache
-    getData(this)['catch'](function() {
-      // Ignore `src missing` error on pre-load.
-    })
   }
 
   static get observedAttributes() {
@@ -73,26 +69,34 @@ export class IncludeFragmentElement extends HTMLElement {
     }
   }
 
+  get lazyload() {
+    return this.hasAttribute('lazyload')
+  }
+  set lazyload(val) {
+    if (val) {
+      this.setAttribute('lazyload', '')
+    } else {
+      this.removeAttribute('lazyload')
+    }
+  }
+
   get data() {
     return getData(this)
   }
 
   attributeChangedCallback(attribute) {
-    if (attribute === 'src') {
-      // Reload data load cache.
-      const data = getData(this)
-
+    if (attribute === 'src' && !this.lazyload) {
       // Source changed after attached so replace element.
       if (this._attached) {
-        handleData(this, data)
+        handleData(this)
       }
     }
   }
 
   connectedCallback() {
     this._attached = true
-    if (this.src) {
-      handleData(this, getData(this))
+    if (this.src && !this.lazyload) {
+      handleData(this)
     }
   }
 
@@ -116,41 +120,38 @@ export class IncludeFragmentElement extends HTMLElement {
   }
 
   load() {
-    const self = this
-
     return Promise.resolve()
-      .then(function() {
-        const request = self.request()
-        fire('loadstart', self)
-        return self.fetch(request)
+      .then(() => {
+        fire('loadstart', this)
+        return this.fetch(this.request())
       })
-      .then(function(response) {
+      .then(response => {
         if (response.status !== 200) {
           throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
         }
-
         const ct = response.headers.get('Content-Type')
         if (!ct || !ct.match(/^text\/html/)) {
           throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
         }
-
         return response
       })
-      .then(function(response) {
-        return response.text()
-      })
+      .then(response => response.text())
       .then(
-        function(data) {
-          fire('load', self)
-          fire('loadend', self)
+        data => {
+          fire('load', this)
+          fire('loadend', this)
           return data
         },
-        function(error) {
-          fire('error', self)
-          fire('loadend', self)
+        error => {
+          fire('error', this)
+          fire('loadend', this)
           throw error
         }
       )
+  }
+
+  get() {
+    handleData(this)
   }
 
   fetch(request) {
