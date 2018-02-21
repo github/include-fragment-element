@@ -74,7 +74,7 @@ export class IncludeFragmentElement extends HTMLElement {
   }
 
   attributeChangedCallback(attribute) {
-    if (attribute === 'src' && !this.lazyload) {
+    if (attribute === 'src') {
       // Source changed after attached so replace element.
       if (this._attached) {
         handleData(this)
@@ -84,7 +84,7 @@ export class IncludeFragmentElement extends HTMLElement {
 
   connectedCallback() {
     this._attached = true
-    if (this.src && !this.lazyload) {
+    if (this.src) {
       handleData(this)
     }
   }
