@@ -44,6 +44,12 @@ const responses = {
   }
 }
 
+function when(el, eventType) {
+  return new Promise(function(resolve) {
+    el.addEventListener(eventType, resolve)
+  })
+}
+
 window.IncludeFragmentElement.prototype.fetch = function(request) {
   const pathname = new URL(request.url).pathname
   return Promise.resolve(responses[pathname](request))
@@ -54,6 +60,9 @@ setup(function() {
 })
 
 suite('include-fragment-element', function() {
+  teardown(() => {
+    document.body.innerHTML = ''
+  })
   test('create from document.createElement', function() {
     const el = document.createElement('include-fragment')
     assert.equal('INCLUDE-FRAGMENT', el.nodeName)
@@ -79,7 +88,7 @@ suite('include-fragment-element', function() {
   test('initial data is in error state', function() {
     const el = document.createElement('include-fragment')
 
-    el.data['catch'](function(error) {
+    return el.data['catch'](function(error) {
       assert.ok(error)
     })
   })
@@ -88,7 +97,7 @@ suite('include-fragment-element', function() {
     const el = document.createElement('include-fragment')
     el.src = '/hello'
 
-    el.data.then(
+    return el.data.then(
       function(html) {
         assert.equal('<div id="replaced">hello</div>', html)
       },
@@ -102,7 +111,7 @@ suite('include-fragment-element', function() {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/hello')
 
-    el.data.then(
+    return el.data.then(
       function(html) {
         assert.equal('<div id="replaced">hello</div>', html)
       },
@@ -116,7 +125,7 @@ suite('include-fragment-element', function() {
     const el = document.createElement('include-fragment')
     el.src = '/count'
 
-    el.data
+    return el.data
       .then(function(text) {
         assert.equal('1', text)
         el.src = '/count'
@@ -136,7 +145,7 @@ suite('include-fragment-element', function() {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/count')
 
-    el.data
+    return el.data
       .then(function(text) {
         assert.equal('1', text)
         el.setAttribute('src', '/count')
@@ -177,7 +186,7 @@ suite('include-fragment-element', function() {
     div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>'
     document.body.appendChild(div)
 
-    div.firstChild.addEventListener('load', function() {
+    return when(div.firstChild, 'load').then(() => {
       assert.equal(document.querySelector('include-fragment'), null)
       assert.equal(document.querySelector('#replaced').textContent, 'hello')
     })
@@ -185,24 +194,30 @@ suite('include-fragment-element', function() {
 
   test('does not replace element if it has no parent', function() {
     const div = document.createElement('div')
-    div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>'
+    div.innerHTML = '<include-fragment>loading</include-fragment>'
     document.body.appendChild(div)
 
     const fragment = div.firstChild
     fragment.remove()
+    fragment.src = '/hello'
+
+    let didRun = false
 
     window.addEventListener('unhandledrejection', function() {
       assert.ok(false)
     })
 
-    fragment.addEventListener('load', function() {
-      assert.equal(document.querySelector('#replaced'), null)
+    fragment.addEventListener('loadstart', () => {
+      didRun = true
+    })
 
+    setTimeout(() => {
+      assert.ok(!didRun)
       div.appendChild(fragment)
+    }, 10)
 
-      setTimeout(function() {
-        assert.equal(document.querySelector('#replaced').textContent, 'hello')
-      }, 10)
+    return when(fragment, 'load').then(() => {
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
     })
   })
 
@@ -211,7 +226,7 @@ suite('include-fragment-element', function() {
     div.innerHTML = '<include-fragment src="/one-two">loading</include-fragment>'
     document.body.appendChild(div)
 
-    div.firstChild.addEventListener('load', function() {
+    return when(div.firstChild, 'load').then(() => {
       assert.equal(document.querySelector('include-fragment'), null)
       assert.equal(document.querySelector('#one').textContent, 'one')
       assert.equal(document.querySelector('#two').textContent, 'two')
@@ -223,7 +238,7 @@ suite('include-fragment-element', function() {
     div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
     document.body.appendChild(div)
 
-    div.firstChild.addEventListener('error', function(event) {
+    return when(div.firstChild, 'error').then(event => {
       assert.equal(event.bubbles, false)
       assert.equal(event.cancelable, false)
     })
@@ -234,9 +249,9 @@ suite('include-fragment-element', function() {
     div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
     document.body.appendChild(div)
 
-    div.firstChild.addEventListener('error', function() {
+    return when(div.firstChild, 'error').then(() =>
       assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
-    })
+    )
   })
 
   test('adds is-error class on mising Content-Type', function() {
@@ -244,23 +259,22 @@ suite('include-fragment-element', function() {
     div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>'
     document.body.appendChild(div)
 
-    div.firstChild.addEventListener('error', function() {
+    return when(div.firstChild, 'error').then(() =>
       assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
-    })
+    )
   })
 
   test('replaces element when src attribute is changed', function() {
-    const div = document.createElement('div')
-    div.innerHTML = '<include-fragment>loading</include-fragment>'
-    document.body.appendChild(div)
+    const elem = document.createElement('include-fragment')
+    document.body.appendChild(elem)
 
-    div.firstChild.addEventListener('load', function() {
+    setTimeout(function() {
+      elem.src = '/hello'
+    }, 10)
+
+    return when(elem, 'load').then(() => {
       assert.equal(document.querySelector('include-fragment'), null)
       assert.equal(document.querySelector('#replaced').textContent, 'hello')
     })
-
-    setTimeout(function() {
-      div.firstChild.src = '/hello'
-    }, 10)
   })
 })
