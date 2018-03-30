@@ -8,13 +8,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "babel include-fragment-element.js -o dist/index-umd.js",
-    "clean": "rm -rf ./dist",
+    "clean": "rm -rf dist",
     "lint": "eslint include-fragment-element.js test/*.js",
-    "prebuild": "npm run clean && mkdir dist",
-    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && npm run lint && mkdir dist",
+    "build": "babel include-fragment-element.js -o dist/index-umd.js",
     "pretest": "npm run lint",
-    "test": "karma start ./test/karma.config.js"
+    "test": "karma start ./test/karma.config.js",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
