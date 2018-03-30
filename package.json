@@ -3,10 +3,7 @@
   "version": "4.0.1",
   "main": "dist/index-umd.js",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/github/include-fragment-element.git"
-  },
+  "repository": "github/include-fragment-element",
   "files": [
     "dist"
   ],
