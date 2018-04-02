@@ -3,34 +3,31 @@
   "version": "4.0.1",
   "main": "dist/index-umd.js",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/github/include-fragment-element.git"
-  },
+  "repository": "github/include-fragment-element",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "babel include-fragment-element.js -o dist/index-umd.js",
-    "clean": "rm -rf ./dist",
+    "clean": "rm -rf dist",
     "lint": "eslint include-fragment-element.js test/*.js",
-    "prebuild": "npm run clean && mkdir dist",
-    "prepublishOnly": "npm run build",
-    "pretest": "npm run lint",
-    "test": "karma start ./test/karma.config.js"
+    "prebuild": "npm run clean && npm run lint && mkdir dist",
+    "build": "babel include-fragment-element.js -o dist/index-umd.js",
+    "pretest": "npm run build",
+    "test": "karma start ./test/karma.config.js",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-custom-element-classes": "^0.1.0",
     "babel-preset-es2015": "^6.24.1",
     "chai": "^4.1.2",
-    "eslint": "^4.13.1",
-    "eslint-plugin-github": "^0.20.1",
-    "karma": "^1.7.1",
+    "eslint": "^4.19.0",
+    "eslint-plugin-github": "^0.24.0",
+    "karma": "^2.0.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
-    "mocha": "^4.0.1"
+    "mocha": "^5.0.0"
   }
 }
