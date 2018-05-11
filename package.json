@@ -2,6 +2,7 @@
   "name": "include-fragment-element",
   "version": "4.0.1",
   "main": "dist/index-umd.js",
+  "module": "dist/index-es.js",
   "license": "MIT",
   "repository": "github/include-fragment-element",
   "files": [
@@ -11,7 +12,9 @@
     "clean": "rm -rf dist",
     "lint": "eslint include-fragment-element.js test/*.js",
     "prebuild": "npm run clean && npm run lint && mkdir dist",
-    "build": "babel include-fragment-element.js -o dist/index-umd.js",
+    "build": "npm run build-es && npm run build-umd",
+    "build-es": "babel include-fragment-element.js -o dist/index-es.js",
+    "build-umd": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js",
     "pretest": "npm run build",
     "test": "karma start ./test/karma.config.js",
     "prepublishOnly": "npm run build"
