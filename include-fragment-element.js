@@ -41,7 +41,7 @@ function getData(el) {
   }
 }
 
-export class IncludeFragmentElement extends HTMLElement {
+export default class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
   }

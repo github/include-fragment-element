@@ -13,8 +13,8 @@
     "lint": "eslint include-fragment-element.js test/*.js",
     "prebuild": "npm run clean && npm run lint && mkdir dist",
     "build": "npm run build-es && npm run build-umd",
-    "build-es": "babel include-fragment-element.js -o dist/index-es.js",
-    "build-umd": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js",
+    "build-es": "babel include-fragment-element.js -o dist/index-es.js && cp include-fragment-element.js.flow dist/index-es.js.flow",
+    "build-umd": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js && cp include-fragment-element.js.flow dist/index-umd.js.flow",
     "pretest": "npm run build",
     "test": "karma start ./test/karma.config.js",
     "prepublishOnly": "npm run build"
