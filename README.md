@@ -68,6 +68,15 @@ Attribute      | Options                        | Description
 ---            | ---                            | ---
 `src`          | URL string                     | Required URL from which to load the replacement HTML element fragment.
 
+
+### Deferred loading
+
+The request for replacement markup from the server starts when the `src` attribute becomes available on the `<include-fragment>` element. Most often this will happen at page load when the element is rendered. However, if we omit the `src` attribute until some later time, we can defer loading the content at all.
+
+The [`<details-menu>`][menu] element uses this technique to defer loading menu content until the menu is first opened.
+
+[menu]: https://github.com/github/details-menu-element
+
 ## Patterns
 
 Deferring the display of markup is typically done in the following usage patterns.
