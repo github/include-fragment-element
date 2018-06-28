@@ -44,6 +44,24 @@ The server must respond with an HTML fragment to replace the `include-fragment` 
 
 If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling.
 
+### Events
+
+Request lifecycle events are dispatched on the `<include-fragment>` element.
+
+- `loadstart` - The server fetch has started.
+- `load` - The request completed successfully.
+- `error` - The request failed.
+- `loadend` - The request has completed.
+
+```js
+const loader = document.querySelector('include-fragment')
+const container = loader.parentElement
+loader.addEventListener('loadstart', () => container.classList.add('is-loading'))
+loader.addEventListener('loadend', () => container.classList.remove('is-loading'))
+loader.addEventListener('load', () => container.classList.add('is-success'))
+loader.addEventListener('error', () => container.classList.add('is-error'))
+```
+
 ### Options
 
 Attribute      | Options                        | Description
