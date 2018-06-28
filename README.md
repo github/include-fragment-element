@@ -100,9 +100,7 @@ A proxy may attempt to fetch and replace the fragment if the request finishes be
 
 ## Browser support
 
-Browsers without native [custom element support][support] require a [polyfill][].
-
-Legacy browsers require various other polyfills. See [`examples/index.html`][example] for details.
+Browsers without native [custom element support][support] require a [polyfill][]. Legacy browsers require various other polyfills. See [`examples/index.html`][example] for details.
 
 [example]: https://github.com/github/include-fragment-element/blob/master/examples/index.html#L5-L14
 
