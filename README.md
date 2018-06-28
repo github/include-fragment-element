@@ -2,19 +2,10 @@
 
 A Client Side Includes tag.
 
-
 ## Installation
 
 ```
 $ npm install --save include-fragment-element
-```
-
-This component is built on the [Web Component](http://webcomponents.org/) stack. Specifically, it requires a feature called [Custom Elements](http://www.html5rocks.com/en/tutorials/webcomponents/customelements/). You'll need to use a polyfill to get this feature today. Either the [Polymer](http://www.polymer-project.org/) or [X-Tag](http://www.x-tags.org/) frameworks supply a polyfill, or you can install the standalone [CustomElements](https://github.com/webcomponents/webcomponentsjs) polyfill.
-
-Legacy browsers require other generic polyfills. See `examples/index.html` for details.
-
-``` html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/webcomponents-hi-ce.js"></script>
 ```
 
 ## Usage
@@ -23,7 +14,11 @@ All `include-fragment` elements must have a `src` attribute from which to retrie
 
 The initial page load should include fallback content to be displayed if the resource could not be fetched immediately.
 
-**Original:**
+```js
+import 'include-fragment-element'
+```
+
+**Original**
 
 ``` html
 <div class="tip">
@@ -35,7 +30,7 @@ The initial page load should include fallback content to be displayed if the res
 
 On page load, the `include-fragment` element fetches the URL, the response is parsed into an HTML element, which replaces the `include-fragment` element entirely.
 
-**Result:**
+**Result**
 
 ``` html
 <div class="tip">
@@ -76,11 +71,30 @@ This declarative approach is very similar to [SSI](http://en.wikipedia.org/wiki/
 
 A proxy may attempt to fetch and replace the fragment if the request finishes before the timeout. Otherwise the tag is delivered to the client. This library only implements the client side aspect.
 
+## Browser support
 
-## Browser Support
+Browsers without native [custom element support][support] require a [polyfill][].
+
+Legacy browsers require various other polyfills. See [`examples/index.html`][example] for details.
+
+[example]: https://github.com/github/include-fragment-element/blob/master/examples/index.html#L5-L14
 
 - Chrome
 - Firefox
-- Safari 9+
+- Safari
 - Internet Explorer 11
 - Microsoft Edge
+
+[support]: https://caniuse.com/#feat=custom-elementsv1
+[polyfill]: https://github.com/webcomponents/custom-elements
+
+## Development
+
+```
+npm install
+npm test
+```
+
+## License
+
+Distributed under the MIT license. See LICENSE for details.
