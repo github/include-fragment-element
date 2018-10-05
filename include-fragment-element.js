@@ -50,6 +50,10 @@ export default class IncludeFragmentElement extends HTMLElement {
     return ['src']
   }
 
+  static get name() {
+    return 'IncludeFragmentElement'
+  }
+
   get src() {
     const src = this.getAttribute('src')
     if (src) {

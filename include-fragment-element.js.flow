@@ -2,6 +2,7 @@
 
 declare class IncludeFragmentElement extends HTMLElement {
   get data(): Promise<string>;
+  static get name(): string;
   get src(): string;
   set src(url: string): void;
   fetch(request: Request): Promise<Response>;
