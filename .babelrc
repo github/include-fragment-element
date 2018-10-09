@@ -1,12 +1,14 @@
 {
   "plugins": [
     "transform-custom-element-classes",
+    "ensure-name-for-custom-elements"
   ],
   "presets": [["es2015", { "modules": false }]],
   "env": {
     "umd": {
       "plugins": [
         "transform-custom-element-classes",
+        "ensure-name-for-custom-elements",
         "transform-es2015-modules-umd"
       ]
     }
