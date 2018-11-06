@@ -1,5 +1,3 @@
-/* eslint-disable github/no-then */
-
 const privateData = new WeakMap()
 
 function fire(name, target) {

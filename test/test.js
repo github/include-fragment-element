@@ -1,6 +1,4 @@
 /* eslint-env mocha */
-/* eslint-disable github/no-then */
-/* global assert */
 
 let count
 const responses = {
