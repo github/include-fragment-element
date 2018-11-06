@@ -1,0 +1,11 @@
+{
+  "globals": {
+    "assert": true
+  },
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "github/unescaped-html-literal": "off"
+  }
+}
