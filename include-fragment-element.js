@@ -4,9 +4,7 @@ const privateData = new WeakMap()
 
 function fire(name, target) {
   setTimeout(function() {
-    const event = target.ownerDocument.createEvent('Event')
-    event.initEvent(name, false, false)
-    target.dispatchEvent(event)
+    target.dispatchEvent(new Event(name))
   }, 0)
 }
 
