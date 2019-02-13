@@ -2,12 +2,12 @@
   "plugins": [
     "transform-custom-element-classes",
   ],
-  "presets": [["es2015", { "modules": false }]],
+  "presets": [["@babel/env", { "modules": false }]],
   "env": {
     "umd": {
       "plugins": [
         "transform-custom-element-classes",
-        "transform-es2015-modules-umd"
+        "@babel/plugin-transform-modules-umd"
       ]
     }
   }
