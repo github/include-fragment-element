@@ -1,12 +1,8 @@
 {
-  "plugins": [
-    "transform-custom-element-classes",
-  ],
-  "presets": [["@babel/env", { "modules": false }]],
+  "presets": ["github"],
   "env": {
     "umd": {
       "plugins": [
-        "transform-custom-element-classes",
         "@babel/plugin-transform-modules-umd"
       ]
     }
