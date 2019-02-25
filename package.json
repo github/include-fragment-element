@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "lint": "eslint include-fragment-element.js test/*.js",
+    "lint": "github-lint",
     "prebuild": "npm run clean && npm run lint && mkdir dist",
     "build": "npm run build-es && npm run build-umd",
     "build-es": "babel include-fragment-element.js -o dist/index-es.js && cp include-fragment-element.js.flow dist/index-es.js.flow",
