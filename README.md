@@ -5,7 +5,7 @@ A Client Side Includes tag.
 ## Installation
 
 ```
-$ npm install --save include-fragment-element
+$ npm install --save @github/include-fragment-element
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ All `include-fragment` elements must have a `src` attribute from which to retrie
 The initial page load should include fallback content to be displayed if the resource could not be fetched immediately.
 
 ```js
-import 'include-fragment-element'
+import '@github/include-fragment-element'
 ```
 
 **Original**
