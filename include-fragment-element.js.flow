@@ -1,4 +1,4 @@
-/* @flow */
+/* @flow strict */
 
 declare class IncludeFragmentElement extends HTMLElement {
   get data(): Promise<string>;
