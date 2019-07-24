@@ -3,10 +3,12 @@
   "version": "5.0.2",
   "main": "dist/index-umd.js",
   "module": "dist/index-es.js",
+  "types": "index.d.ts",
   "license": "MIT",
   "repository": "github/include-fragment-element",
   "files": [
-    "dist"
+    "dist",
+    "index.d.ts"
   ],
   "scripts": {
     "clean": "rm -rf dist",
