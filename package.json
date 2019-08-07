@@ -19,7 +19,8 @@
     "build-umd": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js && cp include-fragment-element.js.flow dist/index-umd.js.flow",
     "pretest": "npm run build",
     "test": "karma start ./test/karma.config.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postpublish": "npm publish --ignore-scripts --@github:registry='https://npm.pkg.github.com'"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.0",
