@@ -3,3 +3,9 @@ export default class IncludeFragmentElement extends HTMLElement {
   src: string;
   fetch(request: Request): Promise<Response>;
 }
+
+declare global {
+  interface Window {
+    IncludeFragmentElement: IncludeFragmentElement
+  }
+}
