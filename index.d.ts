@@ -6,6 +6,6 @@ export default class IncludeFragmentElement extends HTMLElement {
 
 declare global {
   interface Window {
-    IncludeFragmentElement: IncludeFragmentElement
+    IncludeFragmentElement: typeof IncludeFragmentElement
   }
 }
