@@ -1,12 +1,10 @@
 /* @flow strict */
 
-declare class IncludeFragmentElement extends HTMLElement {
-  get data(): Promise<string>;
-  get src(): string;
-  set src(url: string): void;
-  fetch(request: Request): Promise<Response>;
-}
-
-declare module 'include-fragment-element' {
-  declare export default typeof IncludeFragmentElement
+declare module '@github/include-fragment-element' {
+  declare export default class IncludeFragmentElement extends HTMLElement {
+    get data(): Promise<string>;
+    get src(): string;
+    set src(url: string): void;
+    fetch(request: Request): Promise<Response>;
+  }
 }
