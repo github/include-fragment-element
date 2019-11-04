@@ -282,6 +282,17 @@ suite('include-fragment-element', function() {
     })
   })
 
+  test('replaces with response with accept header for any', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/test.js" accept="*/*">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    return when(div.firstChild, 'load').then(() => {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.match(document.body.textContent, /alert\("what"\)/)
+    })
+  })
+
   test('replaces with response with the right accept header', function() {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/fragment" accept="text/html; fragment">loading</include-fragment>'
