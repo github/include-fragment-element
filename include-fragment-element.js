@@ -65,6 +65,18 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
+  get accept() {
+    return this.getAttribute('accept')
+  }
+
+  set accept(val) {
+    if (val) {
+      this.setAttribute('accept', val)
+    } else {
+      this.removeAttribute('accept')
+    }
+  }
+
   get data() {
     return getData(this)
   }
@@ -99,7 +111,7 @@ export default class IncludeFragmentElement extends HTMLElement {
       method: 'GET',
       credentials: 'same-origin',
       headers: {
-        Accept: 'text/html'
+        Accept: this.accept || 'text/html'
       }
     })
   }
@@ -115,8 +127,8 @@ export default class IncludeFragmentElement extends HTMLElement {
           throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
         }
         const ct = response.headers.get('Content-Type')
-        if (!ct || !ct.match(/^text\/html/)) {
-          throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
+        if (!ct || !ct.match(this.accept ? this.accept : /^text\/html/)) {
+          throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
         }
         return response
       })
