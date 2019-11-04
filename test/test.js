@@ -210,6 +210,20 @@ suite('include-fragment-element', function() {
     )
   })
 
+  test('throws on 406', function() {
+    const el = document.createElement('include-fragment')
+    el.setAttribute('src', '/fragment')
+
+    return el.data.then(
+      () => {
+        assert.ok(false)
+      },
+      error => {
+        assert.match(error, /the server responded with a status of 406/)
+      }
+    )
+  })
+
   test('data is not writable', function() {
     const el = document.createElement('include-fragment')
     assert.ok(el.data !== 42)
