@@ -62,11 +62,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   set src(val) {
-    if (val) {
-      this.setAttribute('src', val)
-    } else {
-      this.removeAttribute('src')
-    }
+    this.setAttribute('src', val)
   }
 
   get accept() {
@@ -74,11 +70,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   set accept(val) {
-    if (val) {
-      this.setAttribute('accept', val)
-    } else {
-      this.removeAttribute('accept')
-    }
+    this.setAttribute('accept', val)
   }
 
   get data() {
