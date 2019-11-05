@@ -5,6 +5,8 @@ declare module '@github/include-fragment-element' {
     get data(): Promise<string>;
     get src(): string;
     set src(url: string): void;
+    get accept(): string;
+    set accept(accept: string): void;
     fetch(request: Request): Promise<Response>;
   }
 }

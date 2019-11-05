@@ -39,6 +39,28 @@ const responses = {
         'Content-Type': 'text/html'
       }
     })
+  },
+  '/fragment': function(request) {
+    if (request.headers.get('Accept') === 'text/html; fragment') {
+      return new Response('<div id="fragment">fragment</div>', {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; fragment'
+        }
+      })
+    } else {
+      return new Response('406', {
+        status: 406
+      })
+    }
+  },
+  '/test.js': function() {
+    return new Response('alert("what")', {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/javascript'
+      }
+    })
   }
 }
 
@@ -159,6 +181,49 @@ suite('include-fragment-element', function() {
       })
   })
 
+  test('throws on incorrect Content-Type', function() {
+    const el = document.createElement('include-fragment')
+    el.setAttribute('src', '/test.js')
+
+    return el.data.then(
+      () => {
+        assert.ok(false)
+      },
+      error => {
+        assert.match(error, /expected text\/html but was text\/javascript/)
+      }
+    )
+  })
+
+  test('throws on non-matching Content-Type', function() {
+    const el = document.createElement('include-fragment')
+    el.setAttribute('accept', 'text/html; fragment')
+    el.setAttribute('src', '/hello')
+
+    return el.data.then(
+      () => {
+        assert.ok(false)
+      },
+      error => {
+        assert.match(error, /expected text\/html; fragment but was text\/html; charset=utf-8/)
+      }
+    )
+  })
+
+  test('throws on 406', function() {
+    const el = document.createElement('include-fragment')
+    el.setAttribute('src', '/fragment')
+
+    return el.data.then(
+      () => {
+        assert.ok(false)
+      },
+      error => {
+        assert.match(error, /the server responded with a status of 406/)
+      }
+    )
+  })
+
   test('data is not writable', function() {
     const el = document.createElement('include-fragment')
     assert.ok(el.data !== 42)
@@ -231,6 +296,28 @@ suite('include-fragment-element', function() {
     })
   })
 
+  test('replaces with response with accept header for any', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/test.js" accept="*/*">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    return when(div.firstChild, 'load').then(() => {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.match(document.body.textContent, /alert\("what"\)/)
+    })
+  })
+
+  test('replaces with response with the right accept header', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/fragment" accept="text/html; fragment">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    return when(div.firstChild, 'load').then(() => {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#fragment').textContent, 'fragment')
+    })
+  })
+
   test('error event is not cancelable or bubbles', function() {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
@@ -255,6 +342,16 @@ suite('include-fragment-element', function() {
   test('adds is-error class on mising Content-Type', function() {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    return when(div.firstChild, 'error').then(() =>
+      assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
+    )
+  })
+
+  test('adds is-error class on incorrect Content-Type', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment src="/fragment">loading</include-fragment>'
     document.body.appendChild(div)
 
     return when(div.firstChild, 'error').then(() =>

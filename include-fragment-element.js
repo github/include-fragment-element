@@ -37,6 +37,10 @@ function getData(el) {
   }
 }
 
+function isWildcard(accept) {
+  return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
+}
+
 export default class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
@@ -58,11 +62,15 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   set src(val) {
-    if (val) {
-      this.setAttribute('src', val)
-    } else {
-      this.removeAttribute('src')
-    }
+    this.setAttribute('src', val)
+  }
+
+  get accept() {
+    return this.getAttribute('accept')
+  }
+
+  set accept(val) {
+    this.setAttribute('accept', val)
   }
 
   get data() {
@@ -99,7 +107,7 @@ export default class IncludeFragmentElement extends HTMLElement {
       method: 'GET',
       credentials: 'same-origin',
       headers: {
-        Accept: 'text/html'
+        Accept: this.accept || 'text/html'
       }
     })
   }
@@ -115,8 +123,8 @@ export default class IncludeFragmentElement extends HTMLElement {
           throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
         }
         const ct = response.headers.get('Content-Type')
-        if (!ct || !ct.match(/^text\/html/)) {
-          throw new Error(`Failed to load resource: expected text/html but was ${ct}`)
+        if (!isWildcard(this.accept) && (!ct || !ct.match(this.accept ? this.accept : /^text\/html/))) {
+          throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
         }
         return response
       })
