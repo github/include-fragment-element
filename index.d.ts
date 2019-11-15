@@ -1,6 +1,7 @@
 export default class IncludeFragmentElement extends HTMLElement {
   readonly data: Promise<string>;
   src: string;
+  accept: string;
   fetch(request: Request): Promise<Response>;
 }
 
