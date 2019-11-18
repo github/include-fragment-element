@@ -7,7 +7,7 @@ module.exports = function(config) {
     client: {mocha: {ui: 'tdd'}},
     colors: true,
     logLevel: config.LOG_INFO,
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadless', 'FirefoxHeadless'],
     autoWatch: false,
     singleRun: true,
     concurrency: Infinity
