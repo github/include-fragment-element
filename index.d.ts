@@ -9,4 +9,7 @@ declare global {
   interface Window {
     IncludeFragmentElement: typeof IncludeFragmentElement
   }
+  interface HTMLElementTagNameMap {
+    'include-fragment': IncludeFragmentElement
+  }
 }
