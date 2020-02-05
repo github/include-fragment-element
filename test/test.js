@@ -41,11 +41,11 @@ const responses = {
     })
   },
   '/fragment': function(request) {
-    if (request.headers.get('Accept') === 'text/html; fragment') {
+    if (request.headers.get('Accept') === 'text/fragment+html') {
       return new Response('<div id="fragment">fragment</div>', {
         status: 200,
         headers: {
-          'Content-Type': 'text/html; fragment'
+          'Content-Type': 'text/fragment+html'
         }
       })
     } else {
@@ -197,7 +197,7 @@ suite('include-fragment-element', function() {
 
   test('throws on non-matching Content-Type', function() {
     const el = document.createElement('include-fragment')
-    el.setAttribute('accept', 'text/html; fragment')
+    el.setAttribute('accept', 'text/fragment+html')
     el.setAttribute('src', '/hello')
 
     return el.data.then(
@@ -205,7 +205,7 @@ suite('include-fragment-element', function() {
         assert.ok(false)
       },
       error => {
-        assert.match(error, /expected text\/html; fragment but was text\/html; charset=utf-8/)
+        assert.match(error, /expected text\/fragment\+html but was text\/html; charset=utf-8/)
       }
     )
   })
@@ -309,7 +309,7 @@ suite('include-fragment-element', function() {
 
   test('replaces with response with the right accept header', function() {
     const div = document.createElement('div')
-    div.innerHTML = '<include-fragment src="/fragment" accept="text/html; fragment">loading</include-fragment>'
+    div.innerHTML = '<include-fragment src="/fragment" accept="text/fragment+html">loading</include-fragment>'
     document.body.appendChild(div)
 
     return when(div.firstChild, 'load').then(() => {

@@ -123,7 +123,7 @@ export default class IncludeFragmentElement extends HTMLElement {
           throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
         }
         const ct = response.headers.get('Content-Type')
-        if (!isWildcard(this.accept) && (!ct || !ct.match(this.accept ? this.accept : /^text\/html/))) {
+        if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
           throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
         }
         return response
