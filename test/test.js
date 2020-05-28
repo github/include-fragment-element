@@ -70,13 +70,12 @@ function when(el, eventType) {
   })
 }
 
-window.IncludeFragmentElement.prototype.fetch = function(request) {
-  const pathname = new URL(request.url).pathname
-  return Promise.resolve(responses[pathname](request))
-}
-
 setup(function() {
   count = 0
+  window.IncludeFragmentElement.prototype.fetch = function (request) {
+    const pathname = new URL(request.url).pathname
+    return Promise.resolve(responses[pathname](request))
+  }
 })
 
 suite('include-fragment-element', function() {

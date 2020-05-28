@@ -1,42 +1,39 @@
 {
   "name": "@github/include-fragment-element",
   "version": "5.1.2",
-  "main": "dist/index-umd.js",
-  "module": "dist/index-es.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "repository": "github/include-fragment-element",
   "files": [
-    "dist",
-    "index.d.ts"
+    "dist"
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "lint": "github-lint",
+    "lint": "eslint . --ext .js,.ts && tsc --noEmit",
     "prebuild": "npm run clean && npm run lint && mkdir dist",
-    "build": "npm run build-es && npm run build-umd",
-    "build-es": "babel include-fragment-element.js -o dist/index-es.js && cp include-fragment-element.js.flow dist/index-es.js.flow",
-    "build-umd": "BABEL_ENV=umd babel include-fragment-element.js -o dist/index-umd.js && cp include-fragment-element.js.flow dist/index-umd.js.flow",
+    "build": "tsc && cp src/index.css dist/index.css",
     "pretest": "npm run build",
-    "test": "karma start ./test/karma.config.js",
+    "test": "karma start ./test/karma.config.cjs",
     "prepublishOnly": "npm run build",
     "postpublish": "npm publish --ignore-scripts --@github:registry='https://npm.pkg.github.com'"
   },
+  "prettier": "@github/prettier-config",
   "devDependencies": {
-    "@babel/cli": "^7.6.2",
-    "@babel/core": "^7.6.2",
-    "@babel/plugin-transform-modules-umd": "^7.2.0",
-    "babel-preset-github": "^3.2.1",
+    "@github/prettier-config": "0.0.4",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
-    "eslint-plugin-github": "^3.1.3",
+    "eslint-plugin-github": "^4.0.1",
     "karma": "^4.3.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-firefox-launcher": "^1.2.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
-    "mocha": "^6.2.1"
+    "mocha": "^6.2.1",
+    "typescript": "^3.9.3"
   },
   "eslintIgnore": [
     "dist/"
