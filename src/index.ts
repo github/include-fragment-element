@@ -50,11 +50,11 @@ export default class IncludeFragmentElement extends HTMLElement {
     this._attached = false
   }
 
-  static get observedAttributes() {
+  static get observedAttributes(): string[] {
     return ['src']
   }
 
-  get src() {
+  get src(): string {
     const src = this.getAttribute('src')
     if (src) {
       const link = this.ownerDocument!.createElement('a')
@@ -69,7 +69,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('src', val)
   }
 
-  get accept() {
+  get accept(): string {
     return this.getAttribute('accept') || ''
   }
 
@@ -77,11 +77,11 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('accept', val)
   }
 
-  get data() {
+  get data(): Promise<string> {
     return getData(this)
   }
 
-  attributeChangedCallback(attribute: string) {
+  attributeChangedCallback(attribute: string): void {
     if (attribute === 'src') {
       // Source changed after attached so replace element.
       if (this._attached) {
