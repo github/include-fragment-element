@@ -90,18 +90,18 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  connectedCallback() {
+  connectedCallback(): void {
     this._attached = true
     if (this.src) {
       handleData(this)
     }
   }
 
-  disconnectedCallback() {
+  disconnectedCallback(): void {
     this._attached = false
   }
 
-  request() {
+  request(): Request {
     const src = this.src
     if (!src) {
       throw new Error('missing src')
@@ -116,7 +116,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  load() {
+  load(): Promise<string> {
     return Promise.resolve()
       .then(() => {
         fire('loadstart', this)
