@@ -1,7 +1,7 @@
 {
   "extends": [
-    "plugin:github/es6",
-    "plugin:github/browser"
+    "plugin:github/browser",
+    "plugin:github/typescript"
   ],
   "overrides": [
     {
