@@ -10,11 +10,13 @@ async function handleData(el: IncludeFragmentElement) {
   // eslint-disable-next-line github/no-then
   return getData(el).then(
     function (html: string) {
-      const parentNode = el.parentNode
-      if (parentNode) {
-        el.insertAdjacentHTML('afterend', html)
-        parentNode.removeChild(el)
-      }
+      const template = document.createElement('template')
+      template.innerHTML = html
+      const fragment = document.importNode(template.content, true)
+      const canceled = !el.dispatchEvent(new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}}))
+      if (canceled) return
+      el.replaceWith(fragment)
+      el.dispatchEvent(new CustomEvent('include-fragment-replaced'))
     },
     function () {
       el.classList.add('is-error')
