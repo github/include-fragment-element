@@ -52,6 +52,8 @@ Request lifecycle events are dispatched on the `<include-fragment>` element.
 - `load` - The request completed successfully.
 - `error` - The request failed.
 - `loadend` - The request has completed.
+- `include-fragment-replace` (cancelable) - The success response has been parsed. It comes with `event.detail.fragment` that will replace the current element.
+- `include-fragment-replaced` - The element has been replaced by the fragment.
 
 ```js
 const loader = document.querySelector('include-fragment')
