@@ -371,4 +371,53 @@ suite('include-fragment-element', function() {
       assert.equal(document.querySelector('#replaced').textContent, 'hello')
     })
   })
+
+  test.only('fires replaced event', function() {
+    const elem = document.createElement('include-fragment')
+    document.body.appendChild(elem)
+
+    setTimeout(function() {
+      elem.src = '/hello'
+    }, 10)
+
+    return when(elem, 'include-fragment-replaced').then(() => {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
+  })
+
+  test.only('fires events for include-fragment node replacement operations for fragment manipulation', function() {
+    const elem = document.createElement('include-fragment')
+    document.body.appendChild(elem)
+
+    setTimeout(function() {
+      elem.src = '/hello'
+    }, 10)
+
+    elem.addEventListener('include-fragment-replace', event => {
+      event.detail.fragment.querySelector('*').textContent = 'hey'
+    })
+
+    return when(elem, 'include-fragment-replaced').then(() => {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hey')
+    })
+  })
+
+  test.only('does not replace node if event was canceled ', function() {
+    const elem = document.createElement('include-fragment')
+    document.body.appendChild(elem)
+
+    setTimeout(function() {
+      elem.src = '/hello'
+    }, 10)
+
+    elem.addEventListener('include-fragment-replace', event => {
+      event.preventDefault()
+    })
+
+    return when(elem, 'load').then(() => {
+      assert(document.querySelector('include-fragment'), 'Node should not be replaced')
+    })
+  })
 })
