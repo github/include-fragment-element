@@ -1,4 +1,4 @@
-# &lt;include-fragment&gt; element
+&lt;include-fragment&gt; element
 
 A Client Side Includes tag.
 
