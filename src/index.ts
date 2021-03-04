@@ -1,5 +1,22 @@
 const privateData = new WeakMap()
 
+const observer = new IntersectionObserver(entries => {
+  for(const entry of entries) {
+    if (entry.isIntersecting) {
+      const {target} = entry 
+      observer.unobserve(target)
+      if (!(target instanceof IncludeFragmentElement)) return
+      if (target.loading === 'lazy') {
+        handleData(target)
+      }
+    }
+  }
+}, {
+  rootMargin: '0px 0px 256px 0px',
+  threshold: 0.01
+})
+
+
 function fire(name: string, target: Element) {
   setTimeout(function () {
     target.dispatchEvent(new Event(name))
@@ -7,6 +24,7 @@ function fire(name: string, target: Element) {
 }
 
 async function handleData(el: IncludeFragmentElement) {
+  observer.unobserve(el)
   // eslint-disable-next-line github/no-then
   return getData(el).then(
     function (html: string) {
@@ -47,7 +65,7 @@ function isWildcard(accept: string | null) {
 export default class IncludeFragmentElement extends HTMLElement {
 
   static get observedAttributes(): string[] {
-    return ['src']
+    return ['src', 'loading']
   }
 
   get src(): string {
@@ -65,6 +83,15 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('src', val)
   }
 
+  get loading(): 'eager'|'lazy'  {
+    if (this.getAttribute('loading') === 'lazy') return 'lazy'
+    return 'eager'
+  }
+
+  set loading(value: 'eager'|'lazy') {
+    this.setAttribute('loading', value)
+  }
+
   get accept(): string {
     return this.getAttribute('accept') || ''
   }
@@ -77,18 +104,26 @@ export default class IncludeFragmentElement extends HTMLElement {
     return getData(this)
   }
 
-  attributeChangedCallback(attribute: string): void {
+  attributeChangedCallback(attribute: string, oldVal:string|null): void {
     if (attribute === 'src') {
       // Source changed after attached so replace element.
       if (this.isConnected) {
+        handleData(this)
+      }
+    } else if (attribute === 'loading') {
+      // Loading mode changed to Eager after attached so replace element.
+      if (this.isConnected && oldVal !== 'eager' && this.loading === 'eager') {
         handleData(this)
       }
     }
   }
 
   connectedCallback(): void {
-    if (this.src) {
+    if (this.src && this.loading === 'eager') {
       handleData(this)
+    }
+    if (this.loading === 'lazy') {
+      observer.observe(this)
     }
   }
 
@@ -108,6 +143,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   load(): Promise<string> {
+    observer.unobserve(this)
     return Promise.resolve()
       .then(() => {
         fire('loadstart', this)

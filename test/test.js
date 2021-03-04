@@ -10,6 +10,11 @@ const responses = {
       }
     })
   },
+  '/slow-hello': function() {
+    return new Promise(resolve => {
+      setTimeout(resolve, 100)
+    }).then(responses['/hello'])
+  },
   '/one-two': function() {
     return new Response('<p id="one">one</p><p id="two">two</p>', {
       status: 200,
@@ -372,7 +377,7 @@ suite('include-fragment-element', function() {
     })
   })
 
-  test.only('fires replaced event', function() {
+  test('fires replaced event', function() {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -386,7 +391,7 @@ suite('include-fragment-element', function() {
     })
   })
 
-  test.only('fires events for include-fragment node replacement operations for fragment manipulation', function() {
+  test('fires events for include-fragment node replacement operations for fragment manipulation', function() {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -404,7 +409,7 @@ suite('include-fragment-element', function() {
     })
   })
 
-  test.only('does not replace node if event was canceled ', function() {
+  test('does not replace node if event was canceled ', function() {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -419,5 +424,113 @@ suite('include-fragment-element', function() {
     return when(elem, 'load').then(() => {
       assert(document.querySelector('include-fragment'), 'Node should not be replaced')
     })
+  })
+
+  test('sets loading to "eager" by default', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    assert(div.firstChild.loading, 'eager')
+  })
+
+  test('loading will return "eager" even if set to junk value', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="junk" src="/hello">loading</include-fragment>'
+    document.body.appendChild(div)
+
+    assert(div.firstChild.loading, 'eager')
+  })
+
+  test('loading=lazy loads if already visible on page', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
+    document.body.appendChild(div)
+    
+    return when(div.firstChild, 'include-fragment-replaced').then(() => {
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
+  })
+
+  test('loading=lazy does not load if not visible on page', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
+    div.hidden = true
+    document.body.appendChild(div)
+    return Promise.race([
+      when(div.firstChild, 'load').then(() => {
+        throw new Error('<include-fragment loading=lazy> loaded too early')
+      }),
+      new Promise(resolve => setTimeout(resolve, 100))
+    ])
+  })
+
+  test('loading=lazy loads as soon as element visible on page', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
+    div.hidden = true
+    let failed = false
+    document.body.appendChild(div)
+    const fail = () => failed = true
+    div.firstChild.addEventListener('load', fail)
+
+    setTimeout(function() {
+      div.hidden = false
+      div.firstChild.removeEventListener('load', fail)
+    }, 100)
+
+    return when(div.firstChild, 'load').then(() => {
+      assert.ok(!failed, "Load occured too early")
+    })
+  })
+
+  test('loading=lazy does not observably change during load cycle', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
+    const elem = div.firstChild
+    document.body.appendChild(div)
+
+    return when(elem, 'loadstart').then(() => {
+      assert.equal(elem.loading, 'lazy', "loading mode changed observably")
+    })
+  })
+
+  test('loading=lazy can be switched to eager to load', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
+    div.hidden = true
+    let failed = false
+    document.body.appendChild(div)
+    const fail = () => failed = true
+    div.firstChild.addEventListener('load', fail)
+
+    setTimeout(function() {
+      div.firstChild.loading = 'eager'
+      div.firstChild.removeEventListener('load', fail)
+    }, 100)
+
+    return when(div.firstChild, 'load').then(() => {
+      assert.ok(!failed, "Load occured too early")
+    })
+  })
+
+  test('loading=lazy wont load twice even if load is manually called', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="/slow-hello">loading</include-fragment>'
+    div.hidden = true
+    document.body.appendChild(div)
+    let count = 0
+    div.firstChild.addEventListener('loadstart', () => count += 1)
+    const load = div.firstChild.load()
+    setTimeout(() => {
+      div.hidden = false
+    }, 0)
+
+    return load
+      .then(() => when(div.firstChild, 'loadend'))
+      .then(() => {
+        assert.equal(count, 1, "Load occured too many times")
+      })
   })
 })
