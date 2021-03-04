@@ -45,12 +45,6 @@ function isWildcard(accept: string | null) {
 }
 
 export default class IncludeFragmentElement extends HTMLElement {
-  _attached: boolean
-
-  constructor() {
-    super()
-    this._attached = false
-  }
 
   static get observedAttributes(): string[] {
     return ['src']
@@ -86,21 +80,16 @@ export default class IncludeFragmentElement extends HTMLElement {
   attributeChangedCallback(attribute: string): void {
     if (attribute === 'src') {
       // Source changed after attached so replace element.
-      if (this._attached) {
+      if (this.isConnected) {
         handleData(this)
       }
     }
   }
 
   connectedCallback(): void {
-    this._attached = true
     if (this.src) {
       handleData(this)
     }
-  }
-
-  disconnectedCallback(): void {
-    this._attached = false
   }
 
   request(): Request {
