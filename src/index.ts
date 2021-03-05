@@ -12,6 +12,10 @@ const observer = new IntersectionObserver(entries => {
     }
   }
 }, {
+  // Currently the threshold is set to 256px from the bottom of the viewport
+  // with a threshold of 0.1. This means the element will not load until about
+  // 2 keyboard-down-arrow presses away from being visible in the viewport,
+  // giving us some time to fetch it before the contents are made visible
   rootMargin: '0px 0px 256px 0px',
   threshold: 0.01
 })
