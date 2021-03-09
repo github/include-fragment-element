@@ -166,7 +166,7 @@ export default class IncludeFragmentElement extends HTMLElement {
       })
       .then(data => {
         fire('load', this).then(() => fire('loadend', this))
-        return Promise.resolve(data)
+        return data
       }, error => {
         fire('error', this).then(() => fire('loadend', this))
         throw error
