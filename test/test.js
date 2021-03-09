@@ -466,6 +466,21 @@ suite('include-fragment-element', function() {
     ])
   })
 
+  test('loading=lazy does not load when src is changed', function() {
+    const div = document.createElement('div')
+    div.innerHTML = '<include-fragment loading="lazy" src="">loading</include-fragment>'
+    div.hidden = true
+    document.body.appendChild(div)
+    div.firstChild.src = '/hello'
+    return Promise.race([
+      when(div.firstChild, 'load').then(() => {
+        throw new Error('<include-fragment loading=lazy> loaded too early')
+      }),
+      new Promise(resolve => setTimeout(resolve, 100))
+    ])
+  })
+
+
   test('loading=lazy loads as soon as element visible on page', function() {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
