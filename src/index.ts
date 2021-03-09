@@ -21,13 +21,9 @@ const observer = new IntersectionObserver(entries => {
 })
 
 
-function fire(name: string, target: Element): Promise<void> {
-  return new Promise(resolve => {
-    setTimeout(function () {
-      target.dispatchEvent(new Event(name))
-      resolve()
-    }, 0)
-  })
+// Functional stand in for the W3 spec "queue a task" paradigm
+function task(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, 0))
 }
 
 async function handleData(el: IncludeFragmentElement) {
@@ -152,8 +148,11 @@ export default class IncludeFragmentElement extends HTMLElement {
   load(): Promise<string> {
     observer.unobserve(this)
     return Promise.resolve()
-      .then(() => fire('loadstart', this))
-      .then(() => this.fetch(this.request()))
+      .then(task)
+      .then(() => {
+        this.dispatchEvent(new Event('loadstart'))
+        return this.fetch(this.request())
+      })
       .then(response => {
         if (response.status !== 200) {
           throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
@@ -165,10 +164,16 @@ export default class IncludeFragmentElement extends HTMLElement {
         return response.text()
       })
       .then(data => {
-        fire('load', this).then(() => fire('loadend', this))
+        task().then(() => {
+          this.dispatchEvent(new Event('load'))
+          this.dispatchEvent(new Event('loadend'))
+        })
         return data
       }, error => {
-        fire('error', this).then(() => fire('loadend', this))
+        task().then(() => {
+          this.dispatchEvent(new Event('error'))
+          this.dispatchEvent(new Event('loadend'))
+        })
         throw error
       })
   }
