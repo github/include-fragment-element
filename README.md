@@ -40,6 +40,21 @@ On page load, the `include-fragment` element fetches the URL, the response is pa
 
 The server must respond with an HTML fragment to replace the `include-fragment` element. It should not contain _another_ `include-fragment` element or the server will be polled in an infinite loop.
 
+### Other Attributes
+
+#### accept
+
+This attribute tells `<include-fragment/>` what to send as the `Accept` header, as part of the fetch request. If omitted, or if set to an empty value, the default behaviour will be `text/html`. It is important that the server responds with HTML, but you may wish to change the accept header to help negotiate the right content with the server.
+
+#### loading
+
+This indicates _when_ the contents should be fetched:
+
+ - `eager`: Fetches and load the content immediately, regardless of whether or not the `<include-fragment/>` is currently within the visible viewport (this is the default value).
+ - `lazy`: Defers fetching and loading the content until the `<include-fragment/>` tag reaches a calculated distance from the viewport. The intent is to avoid the network and storage bandwidth needed to handle the content until it's reasonably certain that it will be needed.
+
+The 
+
 ### Errors
 
 If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling.
