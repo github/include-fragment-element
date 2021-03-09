@@ -426,6 +426,25 @@ suite('include-fragment-element', function() {
     })
   })
 
+  test('loading events fire in guaranteed order', function() {
+    const elem = document.createElement('include-fragment')
+    const order = []
+    const events = [
+      when(elem, 'loadend').then(() => order.push('loadend')),
+      when(elem, 'load').then(() => order.push('load')),
+      when(elem, 'loadstart').then(() => order.push('loadstart'))
+    ]
+    elem.src = '/hello'
+    const originalSetTimeout = window.setTimeout
+    let i = 60
+    window.setTimeout = (fn, ms, ...rest) => originalSetTimeout.call(window, fn, ms + (i -= 20), ...rest)
+    elem.load()
+    return Promise.all(events).then(() => {
+      window.setTimeout = originalSetTimeout
+      assert.deepStrictEqual(order, ['loadstart', 'load', 'loadend'])
+    })
+  })
+
   test('sets loading to "eager" by default', function() {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
