@@ -147,8 +147,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   load(): Promise<string> {
     observer.unobserve(this)
-    return Promise.resolve()
-      .then(task)
+    return task()
       .then(() => {
         this.dispatchEvent(new Event('loadstart'))
         return this.fetch(this.request())
