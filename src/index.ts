@@ -147,6 +147,9 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   load(): Promise<string> {
     observer.unobserve(this)
+    // We mimic the same event order as <img>, including the spec
+    // which states events must be dispatched after "queue a task".
+    // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
     return task()
       .then(() => {
         this.dispatchEvent(new Event('loadstart'))
