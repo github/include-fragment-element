@@ -429,19 +429,33 @@ suite('include-fragment-element', function() {
   test('loading events fire in guaranteed order', function() {
     const elem = document.createElement('include-fragment')
     const order = []
+    const connected = []
     const events = [
-      when(elem, 'loadend').then(() => order.push('loadend')),
-      when(elem, 'load').then(() => order.push('load')),
-      when(elem, 'loadstart').then(() => order.push('loadstart'))
+      when(elem, 'loadend').then(() => {
+        order.push('loadend')
+        connected.push(elem.isConnected)
+      }),
+      when(elem, 'load').then(() => {
+        order.push('load')
+        connected.push(elem.isConnected)
+      }),
+      when(elem, 'loadstart').then(() => {
+        order.push('loadstart')
+        connected.push(elem.isConnected)
+      })
     ]
     elem.src = '/hello'
+
+    // Emulate some kind of timer clamping
     const originalSetTimeout = window.setTimeout
     let i = 60
     window.setTimeout = (fn, ms, ...rest) => originalSetTimeout.call(window, fn, ms + (i -= 20), ...rest)
-    elem.load()
+
+    document.body.appendChild(elem)
     return Promise.all(events).then(() => {
       window.setTimeout = originalSetTimeout
       assert.deepStrictEqual(order, ['loadstart', 'load', 'loadend'])
+      assert.deepStrictEqual(connected, [true, false, false])
     })
   })
 
