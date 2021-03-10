@@ -163,12 +163,18 @@ export default class IncludeFragmentElement extends HTMLElement {
         return response.text()
       })
       .then(data => {
+        // Dispatch `load` and `loadend` async to allow
+        // the `load()` promise to resolve _before_ these
+        // events are fired.
         task().then(() => {
           this.dispatchEvent(new Event('load'))
           this.dispatchEvent(new Event('loadend'))
         })
         return data
       }, error => {
+        // Dispatch `error` and `loadend` async to allow
+        // the `load()` promise to resolve _before_ these
+        // events are fired.
         task().then(() => {
           this.dispatchEvent(new Event('error'))
           this.dispatchEvent(new Event('loadend'))
