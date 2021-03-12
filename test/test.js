@@ -426,36 +426,42 @@ suite('include-fragment-element', function() {
     })
   })
 
-  test('loading events fire in guaranteed order', function() {
-    const elem = document.createElement('include-fragment')
-    const order = []
-    const connected = []
-    const events = [
-      when(elem, 'loadend').then(() => {
-        order.push('loadend')
-        connected.push(elem.isConnected)
-      }),
-      when(elem, 'load').then(() => {
-        order.push('load')
-        connected.push(elem.isConnected)
-      }),
-      when(elem, 'loadstart').then(() => {
-        order.push('loadstart')
-        connected.push(elem.isConnected)
-      })
-    ]
-    elem.src = '/hello'
-
-    // Emulate some kind of timer clamping
+  suite('event order', () => {
     const originalSetTimeout = window.setTimeout
-    let i = 60
-    window.setTimeout = (fn, ms, ...rest) => originalSetTimeout.call(window, fn, ms + (i -= 20), ...rest)
-
-    document.body.appendChild(elem)
-    return Promise.all(events).then(() => {
+    setup(() => {
+      // Emulate some kind of timer clamping
+      let i = 60
+      window.setTimeout = (fn, ms, ...rest) => originalSetTimeout.call(window, fn, ms + (i -= 20), ...rest)
+    })
+    teardown(() => {
       window.setTimeout = originalSetTimeout
-      assert.deepStrictEqual(order, ['loadstart', 'load', 'loadend'])
-      assert.deepStrictEqual(connected, [true, false, false])
+    })
+
+    test('loading events fire in guaranteed order', function() {
+      const elem = document.createElement('include-fragment')
+      const order = []
+      const connected = []
+      const events = [
+        when(elem, 'loadend').then(() => {
+          order.push('loadend')
+          connected.push(elem.isConnected)
+        }),
+        when(elem, 'load').then(() => {
+          order.push('load')
+          connected.push(elem.isConnected)
+        }),
+        when(elem, 'loadstart').then(() => {
+          order.push('loadstart')
+          connected.push(elem.isConnected)
+        })
+      ]
+      elem.src = '/hello'
+      document.body.appendChild(elem)
+
+      return Promise.all(events).then(() => {
+        assert.deepStrictEqual(order, ['loadstart', 'load', 'loadend'])
+        assert.deepStrictEqual(connected, [true, false, false])
+      })
     })
   })
 
