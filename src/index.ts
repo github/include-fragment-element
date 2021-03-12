@@ -21,10 +21,9 @@ const observer = new IntersectionObserver(entries => {
 })
 
 
-function fire(name: string, target: Element) {
-  setTimeout(function () {
-    target.dispatchEvent(new Event(name))
-  }, 0)
+// Functional stand in for the W3 spec "queue a task" paradigm
+function task(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, 0))
 }
 
 async function handleData(el: IncludeFragmentElement) {
@@ -148,9 +147,12 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   load(): Promise<string> {
     observer.unobserve(this)
-    return Promise.resolve()
+    // We mimic the same event order as <img>, including the spec
+    // which states events must be dispatched after "queue a task".
+    // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
+    return task()
       .then(() => {
-        fire('loadstart', this)
+        this.dispatchEvent(new Event('loadstart'))
         return this.fetch(this.request())
       })
       .then(response => {
@@ -161,21 +163,27 @@ export default class IncludeFragmentElement extends HTMLElement {
         if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
           throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
         }
-        return response
+        return response.text()
       })
-      .then(response => response.text())
-      .then(
-        data => {
-          fire('load', this)
-          fire('loadend', this)
-          return data
-        },
-        error => {
-          fire('error', this)
-          fire('loadend', this)
-          throw error
-        }
-      )
+      .then(data => {
+        // Dispatch `load` and `loadend` async to allow
+        // the `load()` promise to resolve _before_ these
+        // events are fired.
+        task().then(() => {
+          this.dispatchEvent(new Event('load'))
+          this.dispatchEvent(new Event('loadend'))
+        })
+        return data
+      }, error => {
+        // Dispatch `error` and `loadend` async to allow
+        // the `load()` promise to resolve _before_ these
+        // events are fired.
+        task().then(() => {
+          this.dispatchEvent(new Event('error'))
+          this.dispatchEvent(new Event('loadend'))
+        })
+        throw error
+      })
   }
 
   fetch(request: RequestInfo): Promise<Response> {
