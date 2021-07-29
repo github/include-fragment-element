@@ -485,7 +485,6 @@ suite('include-fragment-element', function() {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
     document.body.appendChild(div)
-    
     return when(div.firstChild, 'include-fragment-replaced').then(() => {
       assert.equal(document.querySelector('include-fragment'), null)
       assert.equal(document.querySelector('#replaced').textContent, 'hello')
@@ -582,9 +581,11 @@ suite('include-fragment-element', function() {
     }, 0)
 
     return load
-      .then(() => when(div.firstChild, 'loadend'))
+      .then(() => when(div.firstChild, 'include-fragment-replaced'))
       .then(() => {
         assert.equal(count, 1, "Load occured too many times")
+        assert.equal(document.querySelector('include-fragment'), null)
+        assert.equal(document.querySelector('#replaced').textContent, 'hello')
       })
   })
 })
