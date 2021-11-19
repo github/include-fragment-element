@@ -53,8 +53,6 @@ This indicates _when_ the contents should be fetched:
  - `eager`: Fetches and load the content immediately, regardless of whether or not the `<include-fragment/>` is currently within the visible viewport (this is the default value).
  - `lazy`: Defers fetching and loading the content until the `<include-fragment/>` tag reaches a calculated distance from the viewport. The intent is to avoid the network and storage bandwidth needed to handle the content until it's reasonably certain that it will be needed.
 
-The 
-
 ### Errors
 
 If the URL fails to load, the `include-fragment` element is left in the page and tagged with an `is-error` CSS class that can be used for styling.
