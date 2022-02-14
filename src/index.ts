@@ -161,6 +161,17 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
+  constructor() {
+    super()
+    this.attachShadow({mode: 'open'}).innerHTML = `
+      <style> 
+        :host {
+          display: block;
+        }
+      </style>
+      <slot></slot>`
+  }
+
   connectedCallback(): void {
     if (this.src && this.loading === 'eager') {
       handleData(this)
