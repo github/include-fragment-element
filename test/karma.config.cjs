@@ -1,13 +1,15 @@
-module.exports = function(config) {
+process.env.CHROME_BIN = require('chromium').path
+
+module.exports = function (config) {
   config.set({
     frameworks: ['mocha', 'chai'],
-    files: [{pattern: '../dist/index.js', type: 'module'}, 'test.js'],
+    files: [{ pattern: '../dist/index.js', type: 'module' }, 'test.js'],
     reporters: ['mocha'],
     port: 9876,
-    client: {mocha: {ui: 'tdd'}},
+    client: { mocha: { ui: 'tdd' } },
     colors: true,
     logLevel: config.LOG_INFO,
-    browsers: ['ChromeHeadless', 'FirefoxHeadless'],
+    browsers: ['ChromeHeadless'],
     autoWatch: false,
     singleRun: true,
     concurrency: Infinity
