@@ -9,65 +9,6 @@ function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
 
-function getData(el: IncludeFragmentElement) {
-  const src = el.src
-  let data = privateData.get(el)
-  if (data && data.src === src) {
-    return data.data
-  } else {
-    if (src) {
-      data = fetchDataWithEvents(el)
-    } else {
-      data = Promise.reject(new Error('missing src'))
-    }
-    privateData.set(el, {src, data})
-    return data
-  }
-}
-
-function fetchDataWithEvents(el: IncludeFragmentElement) {
-  // We mimic the same event order as <img>, including the spec
-  // which states events must be dispatched after "queue a task".
-  // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
-  return task()
-    .then(() => {
-      el.dispatchEvent(new Event('loadstart'))
-      return el.fetch(el.request())
-    })
-    .then(response => {
-      if (response.status !== 200) {
-        throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
-      }
-      const ct = response.headers.get('Content-Type')
-      if (!isWildcard(el.accept) && (!ct || !ct.includes(el.accept ? el.accept : 'text/html'))) {
-        throw new Error(`Failed to load resource: expected ${el.accept || 'text/html'} but was ${ct}`)
-      }
-      return response.text()
-    })
-    .then(
-      data => {
-        // Dispatch `load` and `loadend` async to allow
-        // the `load()` promise to resolve _before_ these
-        // events are fired.
-        task().then(() => {
-          el.dispatchEvent(new Event('load'))
-          el.dispatchEvent(new Event('loadend'))
-        })
-        return data
-      },
-      error => {
-        // Dispatch `error` and `loadend` async to allow
-        // the `load()` promise to resolve _before_ these
-        // events are fired.
-        task().then(() => {
-          el.dispatchEvent(new Event('error'))
-          el.dispatchEvent(new Event('loadend'))
-        })
-        throw error
-      }
-    )
-}
-
 export default class IncludeFragmentElement extends HTMLElement {
   static get observedAttributes(): string[] {
     return ['src', 'loading']
@@ -106,7 +47,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   get data(): Promise<string> {
-    return getData(this)
+    return this.#getData()
   }
 
   attributeChangedCallback(attribute: string, oldVal: string | null): void {
@@ -160,7 +101,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   load(): Promise<string> {
-    return getData(this)
+    return this.#getData()
   }
 
   fetch(request: RequestInfo): Promise<Response> {
@@ -192,8 +133,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   #handleData(): Promise<void> {
     this.#observer.unobserve(this)
-
-    return getData(this).then(
+    return this.#getData().then(
       (html: string) => {
         const template = document.createElement('template')
         // eslint-disable-next-line github/no-inner-html
@@ -210,6 +150,65 @@ export default class IncludeFragmentElement extends HTMLElement {
         this.classList.add('is-error')
       }
     )
+  }
+
+  #getData(): Promise<string> {
+    const src = this.src
+    let data = privateData.get(this)
+    if (data && data.src === src) {
+      return data.data
+    } else {
+      if (src) {
+        data = this.#fetchDataWithEvents()
+      } else {
+        data = Promise.reject(new Error('missing src'))
+      }
+      privateData.set(this, {src, data})
+      return data
+    }
+  }
+
+  #fetchDataWithEvents(): Promise<string> {
+    // We mimic the same event order as <img>, including the spec
+    // which states events must be dispatched after "queue a task".
+    // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
+    return task()
+      .then(() => {
+        this.dispatchEvent(new Event('loadstart'))
+        return this.fetch(this.request())
+      })
+      .then(response => {
+        if (response.status !== 200) {
+          throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
+        }
+        const ct = response.headers.get('Content-Type')
+        if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
+          throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
+        }
+        return response.text()
+      })
+      .then(
+        data => {
+          // Dispatch `load` and `loadend` async to allow
+          // the `load()` promise to resolve _before_ these
+          // events are fired.
+          task().then(() => {
+            this.dispatchEvent(new Event('load'))
+            this.dispatchEvent(new Event('loadend'))
+          })
+          return data
+        },
+        error => {
+          // Dispatch `error` and `loadend` async to allow
+          // the `load()` promise to resolve _before_ these
+          // events are fired.
+          task().then(() => {
+            this.dispatchEvent(new Event('error'))
+            this.dispatchEvent(new Event('loadend'))
+          })
+          throw error
+        }
+      )
   }
 }
 
