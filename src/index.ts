@@ -1,28 +1,5 @@
 const privateData = new WeakMap()
 
-const observer = new IntersectionObserver(
-  entries => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        const {target} = entry
-        observer.unobserve(target)
-        if (!(target instanceof IncludeFragmentElement)) return
-        if (target.loading === 'lazy') {
-          handleData(target)
-        }
-      }
-    }
-  },
-  {
-    // Currently the threshold is set to 256px from the bottom of the viewport
-    // with a threshold of 0.1. This means the element will not load until about
-    // 2 keyboard-down-arrow presses away from being visible in the viewport,
-    // giving us some time to fetch it before the contents are made visible
-    rootMargin: '0px 0px 256px 0px',
-    threshold: 0.01
-  }
-)
-
 // Functional stand in for the W3 spec "queue a task" paradigm
 function task(): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, 0))
@@ -30,27 +7,6 @@ function task(): Promise<void> {
 
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
-}
-
-async function handleData(el: IncludeFragmentElement) {
-  observer.unobserve(el)
-  return getData(el).then(
-    function (html: string) {
-      const template = document.createElement('template')
-      // eslint-disable-next-line github/no-inner-html
-      template.innerHTML = html
-      const fragment = document.importNode(template.content, true)
-      const canceled = !el.dispatchEvent(
-        new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
-      )
-      if (canceled) return
-      el.replaceWith(fragment)
-      el.dispatchEvent(new CustomEvent('include-fragment-replaced'))
-    },
-    function () {
-      el.classList.add('is-error')
-    }
-  )
 }
 
 function getData(el: IncludeFragmentElement) {
@@ -157,12 +113,12 @@ export default class IncludeFragmentElement extends HTMLElement {
     if (attribute === 'src') {
       // Source changed after attached so replace element.
       if (this.isConnected && this.loading === 'eager') {
-        handleData(this)
+        this.#handleData()
       }
     } else if (attribute === 'loading') {
       // Loading mode changed to Eager after attached so replace element.
       if (this.isConnected && oldVal !== 'eager' && this.loading === 'eager') {
-        handleData(this)
+        this.#handleData()
       }
     }
   }
@@ -181,10 +137,10 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   connectedCallback(): void {
     if (this.src && this.loading === 'eager') {
-      handleData(this)
+      this.#handleData()
     }
     if (this.loading === 'lazy') {
-      observer.observe(this)
+      this.#observer.observe(this)
     }
   }
 
@@ -209,6 +165,51 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   fetch(request: RequestInfo): Promise<Response> {
     return fetch(request)
+  }
+
+  #observer = new IntersectionObserver(
+    entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const {target} = entry
+          this.#observer.unobserve(target)
+          if (!(target instanceof IncludeFragmentElement)) return
+          if (target.loading === 'lazy') {
+            this.#handleData()
+          }
+        }
+      }
+    },
+    {
+      // Currently the threshold is set to 256px from the bottom of the viewport
+      // with a threshold of 0.1. This means the element will not load until about
+      // 2 keyboard-down-arrow presses away from being visible in the viewport,
+      // giving us some time to fetch it before the contents are made visible
+      rootMargin: '0px 0px 256px 0px',
+      threshold: 0.01
+    }
+  )
+
+  #handleData(): Promise<void> {
+    this.#observer.unobserve(this)
+
+    return getData(this).then(
+      (html: string) => {
+        const template = document.createElement('template')
+        // eslint-disable-next-line github/no-inner-html
+        template.innerHTML = html
+        const fragment = document.importNode(template.content, true)
+        const canceled = !this.dispatchEvent(
+          new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
+        )
+        if (canceled) return
+        this.replaceWith(fragment)
+        this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
+      },
+      () => {
+        this.classList.add('is-error')
+      }
+    )
   }
 }
 
