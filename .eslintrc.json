@@ -1,9 +1,14 @@
 {
   "root": true,
+  "plugins": ["github"],
   "extends": [
     "plugin:github/browser",
+    "plugin:github/recommended",
     "plugin:github/typescript"
   ],
+  "rules": {
+    "github/no-then": "off"
+  },
   "overrides": [
     {
       "files": "test/**/*.js",

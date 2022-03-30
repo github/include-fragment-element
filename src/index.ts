@@ -30,7 +30,6 @@ function task(): Promise<void> {
 
 async function handleData(el: IncludeFragmentElement) {
   observer.unobserve(el)
-  // eslint-disable-next-line github/no-then
   return getData(el).then(
     function (html: string) {
       const template = document.createElement('template')
