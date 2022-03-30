@@ -28,6 +28,10 @@ function task(): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, 0))
 }
 
+function isWildcard(accept: string | null) {
+  return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
+}
+
 async function handleData(el: IncludeFragmentElement) {
   observer.unobserve(el)
   return getData(el).then(
@@ -106,10 +110,6 @@ function fetchDataWithEvents(el: IncludeFragmentElement) {
         throw error
       }
     )
-}
-
-function isWildcard(accept: string | null) {
-  return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
 
 export default class IncludeFragmentElement extends HTMLElement {
