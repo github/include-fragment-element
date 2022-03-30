@@ -1,25 +1,27 @@
 const privateData = new WeakMap()
 
-const observer = new IntersectionObserver(entries => {
-  for(const entry of entries) {
-    if (entry.isIntersecting) {
-      const {target} = entry
-      observer.unobserve(target)
-      if (!(target instanceof IncludeFragmentElement)) return
-      if (target.loading === 'lazy') {
-        handleData(target)
+const observer = new IntersectionObserver(
+  entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const {target} = entry
+        observer.unobserve(target)
+        if (!(target instanceof IncludeFragmentElement)) return
+        if (target.loading === 'lazy') {
+          handleData(target)
+        }
       }
     }
+  },
+  {
+    // Currently the threshold is set to 256px from the bottom of the viewport
+    // with a threshold of 0.1. This means the element will not load until about
+    // 2 keyboard-down-arrow presses away from being visible in the viewport,
+    // giving us some time to fetch it before the contents are made visible
+    rootMargin: '0px 0px 256px 0px',
+    threshold: 0.01
   }
-}, {
-  // Currently the threshold is set to 256px from the bottom of the viewport
-  // with a threshold of 0.1. This means the element will not load until about
-  // 2 keyboard-down-arrow presses away from being visible in the viewport,
-  // giving us some time to fetch it before the contents are made visible
-  rootMargin: '0px 0px 256px 0px',
-  threshold: 0.01
-})
-
+)
 
 // Functional stand in for the W3 spec "queue a task" paradigm
 function task(): Promise<void> {
@@ -28,13 +30,15 @@ function task(): Promise<void> {
 
 async function handleData(el: IncludeFragmentElement) {
   observer.unobserve(el)
-  // eslint-disable-next-line github/no-then
   return getData(el).then(
     function (html: string) {
       const template = document.createElement('template')
+      // eslint-disable-next-line github/no-inner-html
       template.innerHTML = html
       const fragment = document.importNode(template.content, true)
-      const canceled = !el.dispatchEvent(new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}}))
+      const canceled = !el.dispatchEvent(
+        new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
+      )
       if (canceled) return
       el.replaceWith(fragment)
       el.dispatchEvent(new CustomEvent('include-fragment-replaced'))
@@ -80,25 +84,28 @@ function fetchDataWithEvents(el: IncludeFragmentElement) {
       }
       return response.text()
     })
-    .then(data => {
-      // Dispatch `load` and `loadend` async to allow
-      // the `load()` promise to resolve _before_ these
-      // events are fired.
-      task().then(() => {
-        el.dispatchEvent(new Event('load'))
-        el.dispatchEvent(new Event('loadend'))
-      })
-      return data
-    }, error => {
-      // Dispatch `error` and `loadend` async to allow
-      // the `load()` promise to resolve _before_ these
-      // events are fired.
-      task().then(() => {
-        el.dispatchEvent(new Event('error'))
-        el.dispatchEvent(new Event('loadend'))
-      })
-      throw error
-    })
+    .then(
+      data => {
+        // Dispatch `load` and `loadend` async to allow
+        // the `load()` promise to resolve _before_ these
+        // events are fired.
+        task().then(() => {
+          el.dispatchEvent(new Event('load'))
+          el.dispatchEvent(new Event('loadend'))
+        })
+        return data
+      },
+      error => {
+        // Dispatch `error` and `loadend` async to allow
+        // the `load()` promise to resolve _before_ these
+        // events are fired.
+        task().then(() => {
+          el.dispatchEvent(new Event('error'))
+          el.dispatchEvent(new Event('loadend'))
+        })
+        throw error
+      }
+    )
 }
 
 function isWildcard(accept: string | null) {
@@ -106,7 +113,6 @@ function isWildcard(accept: string | null) {
 }
 
 export default class IncludeFragmentElement extends HTMLElement {
-
   static get observedAttributes(): string[] {
     return ['src', 'loading']
   }
@@ -126,12 +132,12 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('src', val)
   }
 
-  get loading(): 'eager'|'lazy'  {
+  get loading(): 'eager' | 'lazy' {
     if (this.getAttribute('loading') === 'lazy') return 'lazy'
     return 'eager'
   }
 
-  set loading(value: 'eager'|'lazy') {
+  set loading(value: 'eager' | 'lazy') {
     this.setAttribute('loading', value)
   }
 
@@ -147,7 +153,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     return getData(this)
   }
 
-  attributeChangedCallback(attribute: string, oldVal:string|null): void {
+  attributeChangedCallback(attribute: string, oldVal: string | null): void {
     if (attribute === 'src') {
       // Source changed after attached so replace element.
       if (this.isConnected && this.loading === 'eager') {
@@ -163,6 +169,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   constructor() {
     super()
+    // eslint-disable-next-line github/no-inner-html
     this.attachShadow({mode: 'open'}).innerHTML = `
       <style> 
         :host {
