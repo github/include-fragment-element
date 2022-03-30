@@ -14,6 +14,7 @@
         "mocha": true
       },
       "rules": {
+        "github/no-inner-html": "off",
         "github/unescaped-html-literal": "off"
       }
     }

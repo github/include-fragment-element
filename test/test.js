@@ -78,7 +78,7 @@ function when(el, eventType) {
 setup(function () {
   count = 0
   window.IncludeFragmentElement.prototype.fetch = function (request) {
-    const pathname = new URL(request.url).pathname
+    const pathname = new URL(request.url, window.location.origin).pathname
     return Promise.resolve(responses[pathname](request))
   }
 })

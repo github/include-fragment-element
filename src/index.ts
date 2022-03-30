@@ -32,6 +32,7 @@ async function handleData(el: IncludeFragmentElement) {
   return getData(el).then(
     function (html: string) {
       const template = document.createElement('template')
+      // eslint-disable-next-line github/no-inner-html
       template.innerHTML = html
       const fragment = document.importNode(template.content, true)
       const canceled = !el.dispatchEvent(new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}}))
@@ -163,6 +164,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   constructor() {
     super()
+    // eslint-disable-next-line github/no-inner-html
     this.attachShadow({mode: 'open'}).innerHTML = `
       <style> 
         :host {
