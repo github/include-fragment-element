@@ -587,4 +587,24 @@ suite('include-fragment-element', function () {
         assert.equal(document.querySelector('#replaced').textContent, 'hello')
       })
   })
+
+  test('include-fragment-replaced is only called once', function () {
+    const div = document.createElement('div')
+    div.hidden = true
+    document.body.append(div)
+
+    div.innerHTML = `<include-fragment src="/hello">loading</include-fragment>`
+    div.firstChild.addEventListener('include-fragment-replaced', () => (loadCount += 1))
+
+    let loadCount = 0
+    setTimeout(() => {
+      div.hidden = false
+    }, 0)
+
+    return when(div.firstChild, 'include-fragment-replaced').then(() => {
+      assert.equal(loadCount, 1, 'Load occured too many times')
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
+  })
 })

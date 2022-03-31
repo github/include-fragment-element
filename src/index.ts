@@ -50,6 +50,8 @@ export default class IncludeFragmentElement extends HTMLElement {
     return this.#getData()
   }
 
+  #busy = false
+
   attributeChangedCallback(attribute: string, oldVal: string | null): void {
     if (attribute === 'src') {
       // Source changed after attached so replace element.
@@ -132,6 +134,9 @@ export default class IncludeFragmentElement extends HTMLElement {
   )
 
   #handleData(): Promise<void> {
+    if (this.#busy) return Promise.resolve()
+    this.#busy = true
+
     this.#observer.unobserve(this)
     return this.#getData().then(
       (html: string) => {
