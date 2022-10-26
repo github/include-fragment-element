@@ -1,7 +1,14 @@
+import {CSPTrustedHTMLToStringable, CSPTrustedTypesPolicy} from './trusted-types'
+
 const privateData = new WeakMap()
 
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
+}
+
+let cspTrustedTypesPolicy: Promise<CSPTrustedTypesPolicy> | null = null
+export function setCSPTrusedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy>): void {
+  cspTrustedTypesPolicy = Promise.resolve(policy)
 }
 
 export default class IncludeFragmentElement extends HTMLElement {
@@ -41,8 +48,9 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('accept', val)
   }
 
+  // TODO: Should this return a TrustedHTML if available, or always a string?
   get data(): Promise<string> {
-    return this.#getData()
+    return this.#getStringData()
   }
 
   #busy = false
@@ -63,14 +71,10 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   constructor() {
     super()
-    // eslint-disable-next-line github/no-inner-html
-    this.attachShadow({mode: 'open'}).innerHTML = `
-      <style> 
-        :host {
-          display: block;
-        }
-      </style>
-      <slot></slot>`
+    const shadowRoot = this.attachShadow({mode: 'open'})
+    const style = shadowRoot.appendChild(document.createElement('style'))
+    style.textContent = `:host {display: block;}`
+    style.appendChild(document.createElement('slot'))
   }
 
   connectedCallback(): void {
@@ -97,8 +101,9 @@ export default class IncludeFragmentElement extends HTMLElement {
     })
   }
 
+  // TODO: Should this return `this.#getData()` directly?
   load(): Promise<string> {
-    return this.#getData()
+    return this.#getStringData()
   }
 
   fetch(request: RequestInfo): Promise<Response> {
@@ -134,10 +139,14 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.#observer.unobserve(this)
     try {
       const html = await this.#getData()
-
+      // Until TypeScript is natively compatible with CSP trusted types, we
+      // have to treat this as a string here.
+      // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1246
+      const htmlTreatedAsString = html as string
+      
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
-      template.innerHTML = html
+      template.innerHTML = htmlTreatedAsString
       const fragment = document.importNode(template.content, true)
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
@@ -150,7 +159,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  #getData(): Promise<string> {
+  #getData(): Promise<string | CSPTrustedHTMLToStringable> {
     const src = this.src
     let data = privateData.get(this)
     if (data && data.src === src) {
@@ -166,6 +175,10 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
+  async #getStringData(): Promise<string> {
+    return (await this.#getStringData()).toString()
+  }
+
   // Functional stand in for the W3 spec "queue a task" paradigm
   async #task(eventsToDispatch: string[]): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 0))
@@ -174,7 +187,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #fetchDataWithEvents(): Promise<string> {
+  async #fetchDataWithEvents(): Promise<string | CSPTrustedHTMLToStringable> {
     // We mimic the same event order as <img>, including the spec
     // which states events must be dispatched after "queue a task".
     // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
@@ -188,7 +201,14 @@ export default class IncludeFragmentElement extends HTMLElement {
     if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
       throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
     }
-    const data = await response.text()
+
+    let responseText : string = await response.text()
+    let data: string | CSPTrustedHTMLToStringable = responseText;
+    if (cspTrustedTypesPolicy) {
+      data = await cspTrustedTypesPolicy.then(policy => 
+        policy.createHTML(responseText, response)
+      )
+    }
 
     try {
       // Dispatch `load` and `loadend` async to allow
