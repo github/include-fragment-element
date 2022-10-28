@@ -171,7 +171,9 @@ export default class IncludeFragmentElement extends HTMLElement {
   // Functional stand in for the W3 spec "queue a task" paradigm
   async #task(eventsToDispatch: string[]): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 0))
-    eventsToDispatch.forEach(eventType => this.dispatchEvent(new Event(eventType)))
+    for (const eventType of eventsToDispatch) {
+      this.dispatchEvent(new Event(eventType))
+    }
   }
 
   async #fetchDataWithEvents(): Promise<string> {
