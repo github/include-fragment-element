@@ -1,10 +1,5 @@
 const privateData = new WeakMap()
 
-// Functional stand in for the W3 spec "queue a task" paradigm
-function task(): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, 0))
-}
-
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
@@ -173,17 +168,20 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
+  // Functional stand in for the W3 spec "queue a task" paradigm
+  async #task(eventsToDispatch: string[]): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0))
+    eventsToDispatch.forEach(eventType => this.dispatchEvent(new Event(eventType)))
+  }
+
   async #fetchDataWithEvents(): Promise<string> {
     // We mimic the same event order as <img>, including the spec
     // which states events must be dispatched after "queue a task".
     // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
 
     try {
-      await task()
-
-      this.dispatchEvent(new Event('loadstart'))
+      await this.#task(['loadstart'])
       const response = await this.fetch(this.request())
-
       if (response.status !== 200) {
         throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
       }
@@ -196,17 +194,13 @@ export default class IncludeFragmentElement extends HTMLElement {
       // Dispatch `load` and `loadend` async to allow
       // the `load()` promise to resolve _before_ these
       // events are fired.
-      await task()
-      this.dispatchEvent(new Event('load'))
-      this.dispatchEvent(new Event('loadend'))
+      await this.#task(['load', 'loadend'])
       return data
     } catch (error) {
       // Dispatch `error` and `loadend` async to allow
       // the `load()` promise to resolve _before_ these
       // events are fired.
-      await task()
-      this.dispatchEvent(new Event('error'))
-      this.dispatchEvent(new Event('loadend'))
+      await this.#task(['error', 'loadend'])
       throw error
     }
   }
