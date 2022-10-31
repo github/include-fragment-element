@@ -1,10 +1,5 @@
 const privateData = new WeakMap()
 
-// Functional stand in for the W3 spec "queue a task" paradigm
-function task(): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, 0))
-}
-
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
@@ -133,28 +128,26 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   )
 
-  #handleData(): Promise<void> {
-    if (this.#busy) return Promise.resolve()
+  async #handleData(): Promise<void> {
+    if (this.#busy) return
     this.#busy = true
-
     this.#observer.unobserve(this)
-    return this.#getData().then(
-      (html: string) => {
-        const template = document.createElement('template')
-        // eslint-disable-next-line github/no-inner-html
-        template.innerHTML = html
-        const fragment = document.importNode(template.content, true)
-        const canceled = !this.dispatchEvent(
-          new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
-        )
-        if (canceled) return
-        this.replaceWith(fragment)
-        this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
-      },
-      () => {
-        this.classList.add('is-error')
-      }
-    )
+    try {
+      const html = await this.#getData()
+
+      const template = document.createElement('template')
+      // eslint-disable-next-line github/no-inner-html
+      template.innerHTML = html
+      const fragment = document.importNode(template.content, true)
+      const canceled = !this.dispatchEvent(
+        new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
+      )
+      if (canceled) return
+      this.replaceWith(fragment)
+      this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
+    } catch {
+      this.classList.add('is-error')
+    }
   }
 
   #getData(): Promise<string> {
@@ -173,47 +166,43 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  #fetchDataWithEvents(): Promise<string> {
+  // Functional stand in for the W3 spec "queue a task" paradigm
+  async #task(eventsToDispatch: string[]): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 0))
+    for (const eventType of eventsToDispatch) {
+      this.dispatchEvent(new Event(eventType))
+    }
+  }
+
+  async #fetchDataWithEvents(): Promise<string> {
     // We mimic the same event order as <img>, including the spec
     // which states events must be dispatched after "queue a task".
     // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
-    return task()
-      .then(() => {
-        this.dispatchEvent(new Event('loadstart'))
-        return this.fetch(this.request())
-      })
-      .then(response => {
-        if (response.status !== 200) {
-          throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
-        }
-        const ct = response.headers.get('Content-Type')
-        if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
-          throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
-        }
-        return response.text()
-      })
-      .then(
-        data => {
-          // Dispatch `load` and `loadend` async to allow
-          // the `load()` promise to resolve _before_ these
-          // events are fired.
-          task().then(() => {
-            this.dispatchEvent(new Event('load'))
-            this.dispatchEvent(new Event('loadend'))
-          })
-          return data
-        },
-        error => {
-          // Dispatch `error` and `loadend` async to allow
-          // the `load()` promise to resolve _before_ these
-          // events are fired.
-          task().then(() => {
-            this.dispatchEvent(new Event('error'))
-            this.dispatchEvent(new Event('loadend'))
-          })
-          throw error
-        }
-      )
+
+    await this.#task(['loadstart'])
+    const response = await this.fetch(this.request())
+    if (response.status !== 200) {
+      throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
+    }
+    const ct = response.headers.get('Content-Type')
+    if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
+      throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
+    }
+    const data = await response.text()
+
+    try {
+      // Dispatch `load` and `loadend` async to allow
+      // the `load()` promise to resolve _before_ these
+      // events are fired.
+      this.#task(['load', 'loadend'])
+      return data
+    } catch (error) {
+      // Dispatch `error` and `loadend` async to allow
+      // the `load()` promise to resolve _before_ these
+      // events are fired.
+      this.#task(['error', 'loadend'])
+      throw error
+    }
   }
 }
 
