@@ -145,7 +145,7 @@ export default class IncludeFragmentElement extends HTMLElement {
       if (canceled) return
       this.replaceWith(fragment)
       this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
-    } catch (_) {
+    } catch {
       this.classList.add('is-error')
     }
   }
