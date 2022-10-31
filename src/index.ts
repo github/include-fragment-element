@@ -72,9 +72,9 @@ export default class IncludeFragmentElement extends HTMLElement {
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
-    const style = shadowRoot.appendChild(document.createElement('style'))
+    const style = document.createElement('style')
     style.textContent = `:host {display: block;}`
-    style.appendChild(document.createElement('slot'))
+    shadowRoot.append(style, document.createElement('slot'))
   }
 
   connectedCallback(): void {
