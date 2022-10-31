@@ -143,7 +143,7 @@ export default class IncludeFragmentElement extends HTMLElement {
       // have to treat this as a string here.
       // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1246
       const htmlTreatedAsString = html as string
-      
+
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
       template.innerHTML = htmlTreatedAsString
@@ -202,12 +202,10 @@ export default class IncludeFragmentElement extends HTMLElement {
       throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
     }
 
-    let responseText : string = await response.text()
-    let data: string | CSPTrustedHTMLToStringable = responseText;
+    let responseText: string = await response.text()
+    let data: string | CSPTrustedHTMLToStringable = responseText
     if (cspTrustedTypesPolicy) {
-      data = await cspTrustedTypesPolicy.then(policy => 
-        policy.createHTML(responseText, response)
-      )
+      data = await cspTrustedTypesPolicy.then(policy => policy.createHTML(responseText, response))
     }
 
     try {
