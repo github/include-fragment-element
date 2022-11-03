@@ -1,11 +1,17 @@
-import {CSPTrustedHTMLToStringable, CSPTrustedTypesPolicy} from './trusted-types'
-
 const privateData = new WeakMap()
 
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
 
+// We don't want to add `@types/trusted-types` as a dependency, so we use this stand-in.
+
+interface CSPTrustedHTMLToStringable {
+  toString: () => string
+}
+interface CSPTrustedTypesPolicy {
+  createHTML: (s: string, response: Response) => CSPTrustedHTMLToStringable
+}
 let cspTrustedTypesPolicy: Promise<CSPTrustedTypesPolicy> | null = null
 export function setCSPTrusedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy>): void {
   cspTrustedTypesPolicy = Promise.resolve(policy)
@@ -202,7 +208,7 @@ export default class IncludeFragmentElement extends HTMLElement {
       throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
     }
 
-    let responseText: string = await response.text()
+    const responseText: string = await response.text()
     let data: string | CSPTrustedHTMLToStringable = responseText
     if (cspTrustedTypesPolicy) {
       data = await cspTrustedTypesPolicy.then(policy => policy.createHTML(responseText, response))
