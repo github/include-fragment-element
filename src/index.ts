@@ -13,7 +13,7 @@ interface CSPTrustedTypesPolicy {
   createHTML: (s: string, response: Response) => CSPTrustedHTMLToStringable
 }
 let cspTrustedTypesPolicy: Promise<CSPTrustedTypesPolicy> | null = null
-export function setCSPTrusedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy>): void {
+export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy>): void {
   cspTrustedTypesPolicy = Promise.resolve(policy)
 }
 
