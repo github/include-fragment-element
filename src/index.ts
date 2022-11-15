@@ -182,7 +182,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   async #getStringData(): Promise<string> {
-    return (await this.#getStringData()).toString()
+    return (await this.#getData()).toString()
   }
 
   // Functional stand in for the W3 spec "queue a task" paradigm
