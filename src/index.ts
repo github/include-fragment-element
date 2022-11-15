@@ -12,9 +12,9 @@ interface CSPTrustedHTMLToStringable {
 interface CSPTrustedTypesPolicy {
   createHTML: (s: string, response: Response) => CSPTrustedHTMLToStringable
 }
-let cspTrustedTypesPolicy: Promise<CSPTrustedTypesPolicy> | null = null
+let cspTrustedTypesPolicyPromise: Promise<CSPTrustedTypesPolicy> | null = null
 export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy>): void {
-  cspTrustedTypesPolicy = Promise.resolve(policy)
+  cspTrustedTypesPolicyPromise = Promise.resolve(policy)
 }
 
 export default class IncludeFragmentElement extends HTMLElement {
@@ -210,8 +210,9 @@ export default class IncludeFragmentElement extends HTMLElement {
 
       const responseText: string = await response.text()
       let data: string | CSPTrustedHTMLToStringable = responseText
-      if (cspTrustedTypesPolicy) {
-        data = await cspTrustedTypesPolicy.then(policy => policy.createHTML(responseText, response))
+      if (cspTrustedTypesPolicyPromise) {
+        const cspTrustedTypesPolicy = await cspTrustedTypesPolicyPromise
+        data = cspTrustedTypesPolicy.createHTML(responseText, response)
       }
 
       // Dispatch `load` and `loadend` async to allow
