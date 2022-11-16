@@ -579,13 +579,13 @@ suite('include-fragment-element', function () {
       div.hidden = false
     }, 0)
 
-    return load
-      .then(() => when(div.firstChild, 'include-fragment-replaced'))
-      .then(() => {
-        assert.equal(loadCount, 1, 'Load occured too many times')
-        assert.equal(document.querySelector('include-fragment'), null)
-        assert.equal(document.querySelector('#replaced').textContent, 'hello')
-      })
+    const replacedPromise = when(div.firstChild, 'include-fragment-replaced')
+
+    return load.then(replacedPromise).then(() => {
+      assert.equal(loadCount, 1, 'Load occured too many times')
+      assert.equal(document.querySelector('include-fragment'), null)
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
   })
 
   test('include-fragment-replaced is only called once', function () {
