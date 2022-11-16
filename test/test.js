@@ -619,11 +619,13 @@ suite('include-fragment-element', function () {
 
   suite('CSP trusted types', () => {
     teardown(() => {
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy(null)
     })
 
     test('can set a pass-through mock CSP trusted types policy', async function () {
       let policyCalled = false
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
         createHTML: htmlText => {
           policyCalled = true
@@ -641,8 +643,9 @@ suite('include-fragment-element', function () {
 
     test('can set and clear a mutating mock CSP trusted types policy', async function () {
       let policyCalled = false
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
-        createHTML: htmlText => {
+        createHTML: () => {
           policyCalled = true
           return '<b>replacement</b>'
         }
@@ -654,6 +657,7 @@ suite('include-fragment-element', function () {
       assert.equal('<b>replacement</b>', data)
       assert.ok(policyCalled)
 
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy(null)
       const el2 = document.createElement('include-fragment')
       el2.src = '/hello'
@@ -663,12 +667,14 @@ suite('include-fragment-element', function () {
 
     test('can set a real CSP trusted types policy in Chromium', async function () {
       let policyCalled = false
+      // eslint-disable-next-line no-undef
       const policy = globalThis.trustedTypes.createPolicy('test1', {
         createHTML: htmlText => {
           policyCalled = true
           return htmlText
         }
       })
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy(policy)
 
       const el = document.createElement('include-fragment')
@@ -679,8 +685,9 @@ suite('include-fragment-element', function () {
     })
 
     test('can reject data using a mock CSP trusted types policy', async function () {
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
-        createHTML: htmlText => {
+        createHTML: () => {
           throw new Error('Rejected data!')
         }
       })
@@ -696,13 +703,14 @@ suite('include-fragment-element', function () {
     })
 
     test('can access headers using a mock CSP trusted types policy', async function () {
+      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
         createHTML: (htmlText, response) => {
-          if (response.headers.get("X-Server-Sanitized") !== "sanitized=true") {
+          if (response.headers.get('X-Server-Sanitized') !== 'sanitized=true') {
             // Note: this will reject the contents, but the error may be caught before it shows in the JS console.
-            throw new Error("Rejecting HTML that was not marked by the server as sanitized.");
+            throw new Error('Rejecting HTML that was not marked by the server as sanitized.')
           }
-          return htmlText;
+          return htmlText
         }
       })
 

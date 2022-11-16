@@ -22,6 +22,7 @@ export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise
 }
 
 // TODO: find another way to make this available for testing.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(globalThis as any).setCSPTrustedTypesPolicy = setCSPTrustedTypesPolicy
 
 export default class IncludeFragmentElement extends HTMLElement {
