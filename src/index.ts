@@ -18,6 +18,9 @@ export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise
   cspTrustedTypesPolicyPromise = policy === null ? policy : Promise.resolve(policy)
 }
 
+// TODO: find another way to make this available for testing.
+;(globalThis as any).setCSPTrustedTypesPolicy = setCSPTrustedTypesPolicy
+
 export default class IncludeFragmentElement extends HTMLElement {
   static get observedAttributes(): string[] {
     return ['src', 'loading']

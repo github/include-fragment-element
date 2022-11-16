@@ -31,6 +31,15 @@ const responses = {
       }
     })
   },
+  '/x-server-sanitized': function () {
+    return new Response('This response should be marked as sanitized using a custom header!', {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'X-Server-Sanitized': 'sanitized=true'
+      }
+    })
+  },
   '/boom': function () {
     return new Response('boom', {
       status: 500
@@ -605,6 +614,112 @@ suite('include-fragment-element', function () {
       assert.equal(loadCount, 1, 'Load occured too many times')
       assert.equal(document.querySelector('include-fragment'), null)
       assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
+  })
+
+  suite('CSP trusted types', () => {
+    teardown(() => {
+      setCSPTrustedTypesPolicy(null)
+    })
+
+    test('can set a pass-through mock CSP trusted types policy', async function () {
+      let policyCalled = false
+      setCSPTrustedTypesPolicy({
+        createHTML: htmlText => {
+          policyCalled = true
+          return htmlText
+        }
+      })
+
+      const el = document.createElement('include-fragment')
+      el.src = '/hello'
+
+      const data = await el.data
+      assert.equal('<div id="replaced">hello</div>', data)
+      assert.ok(policyCalled)
+    })
+
+    test('can set and clear a mutating mock CSP trusted types policy', async function () {
+      let policyCalled = false
+      setCSPTrustedTypesPolicy({
+        createHTML: htmlText => {
+          policyCalled = true
+          return '<b>replacement</b>'
+        }
+      })
+
+      const el = document.createElement('include-fragment')
+      el.src = '/hello'
+      const data = await el.data
+      assert.equal('<b>replacement</b>', data)
+      assert.ok(policyCalled)
+
+      setCSPTrustedTypesPolicy(null)
+      const el2 = document.createElement('include-fragment')
+      el2.src = '/hello'
+      const data2 = await el2.data
+      assert.equal('<div id="replaced">hello</div>', data2)
+    })
+
+    test('can set a real CSP trusted types policy in Chromium', async function () {
+      let policyCalled = false
+      const policy = globalThis.trustedTypes.createPolicy('test1', {
+        createHTML: htmlText => {
+          policyCalled = true
+          return htmlText
+        }
+      })
+      setCSPTrustedTypesPolicy(policy)
+
+      const el = document.createElement('include-fragment')
+      el.src = '/hello'
+      const data = await el.data
+      assert.equal('<div id="replaced">hello</div>', data)
+      assert.ok(policyCalled)
+    })
+
+    test('can reject data using a mock CSP trusted types policy', async function () {
+      setCSPTrustedTypesPolicy({
+        createHTML: htmlText => {
+          throw new Error('Rejected data!')
+        }
+      })
+
+      const el = document.createElement('include-fragment')
+      el.src = '/hello'
+      try {
+        await el.data
+        assert.ok(false)
+      } catch (error) {
+        assert.match(error, /Rejected data!/)
+      }
+    })
+
+    test('can access headers using a mock CSP trusted types policy', async function () {
+      setCSPTrustedTypesPolicy({
+        createHTML: (htmlText, response) => {
+          if (response.headers.get("X-Server-Sanitized") !== "sanitized=true") {
+            // Note: this will reject the contents, but the error may be caught before it shows in the JS console.
+            throw new Error("Rejecting HTML that was not marked by the server as sanitized.");
+          }
+          return htmlText;
+        }
+      })
+
+      const el = document.createElement('include-fragment')
+      el.src = '/hello'
+      try {
+        await el.data
+        assert.ok(false)
+      } catch (error) {
+        assert.match(error, /Rejecting HTML that was not marked by the server as sanitized./)
+      }
+
+      const el2 = document.createElement('include-fragment')
+      el2.src = '/x-server-sanitized'
+
+      const data2 = await el2.data
+      assert.equal('This response should be marked as sanitized using a custom header!', data2)
     })
   })
 })
