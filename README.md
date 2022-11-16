@@ -144,6 +144,7 @@ Note that:
 - You should call `setCSPTrustedTypesPolicy()` ahead of any other load of `include-fragment-element` in your code.
   - If your policy itself requires asynchronous work to construct, you can also pass a `Promise<TrustedTypePolicy>`.
   - Pass `null` to remove the policy.
+- Not all browsers [support the trusted types API in JavaScript](https://caniuse.com/mdn-api_trustedtypes). You may want to use the [recommended tinyfill](https://github.com/w3c/trusted-types#tinyfill) to construct a policy without causing issues in other browsers.
 
 ## Relation to Server Side Includes
 
