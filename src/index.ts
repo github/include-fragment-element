@@ -13,8 +13,9 @@ interface CSPTrustedTypesPolicy {
   createHTML: (s: string, response: Response) => CSPTrustedHTMLToStringable
 }
 let cspTrustedTypesPolicyPromise: Promise<CSPTrustedTypesPolicy> | null = null
-export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy>): void {
-  cspTrustedTypesPolicyPromise = Promise.resolve(policy)
+// Passing `null` clears the policy.
+export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy> | null): void {
+  cspTrustedTypesPolicyPromise = policy === null ? policy : Promise.resolve(policy)
 }
 
 export default class IncludeFragmentElement extends HTMLElement {
