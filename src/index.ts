@@ -4,13 +4,16 @@ function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
 
-// We don't want to add `@types/trusted-types` as a dependency, so we use this stand-in.
-
-interface CSPTrustedHTMLToStringable {
-  toString: () => string
-}
+// CSP trusted types: We don't want to add `@types/trusted-types` as a
+// dependency, so we use the following types as a stand-in.
 interface CSPTrustedTypesPolicy {
   createHTML: (s: string, response: Response) => CSPTrustedHTMLToStringable
+}
+// Note: basically every object (and some primitives) in JS satisfy this
+// `CSPTrustedHTMLToStringable` interface, but this is the most compatible shape
+// we can use.
+interface CSPTrustedHTMLToStringable {
+  toString: () => string
 }
 let cspTrustedTypesPolicyPromise: Promise<CSPTrustedTypesPolicy> | null = null
 // Passing `null` clears the policy.
