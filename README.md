@@ -100,6 +100,50 @@ Deferring the display of markup is typically done in the following usage pattern
 
 - The first time a user visits a page that contains a time-consuming piece of markup to generate, a loading indicator is displayed. When the markup is finished building on the server, it's stored in memcache and sent to the browser to replace the include-fragment loader. Subsequent visits to the page render the cached markup directly, without going through a include-fragment element.
 
+### CSP Trusted Types
+
+You can call `setCSPTrustedTypesPolicy(policy: TrustedTypePolicy | Promise<TrustedTypePolicy> | null)` from JavaScript to set a [CSP trusted types policy](https://web.dev/trusted-types/), which can perform (synchronous) filtering or rejection of the server response before it is inserted into the page:
+
+```ts
+import { setCSPTrustedTypesPolicy } from "include-fragment-element";
+import DOMPurify from "dompurify"; // Using https://github.com/cure53/DOMPurify
+
+// This policy removes all HTML markup except links.
+const policy = trustedTypes.createPolicy("links-only", {
+  createHTML: (htmlText: string) => {
+    return DOMPurify.sanitize(htmlText, {
+      ALLOWED_TAGS: ["a"],
+      ALLOWED_ATTR: ["href"],
+      RETURN_TRUSTED_TYPE: true,
+    });
+  },
+});
+setCSPTrustedTypesPolicy(policy);
+```
+
+The policy has access to the server response object. Due to platform constraints, only synchronous from the response can be used in the policy:
+
+```ts
+import { setCSPTrustedTypesPolicy } from "include-fragment-element";
+
+const policy = trustedTypes.createPolicy("require-server-header", {
+  createHTML: (htmlText: string, response: Response) => {
+    if (response.headers.get("X-Server-Sanitized") !== "sanitized=true") {
+      // Note: this will reject the contents, but the error may be caught before it shows in the JS console.
+      throw new Error("Rejecting HTML that was not marked by the server as sanitized.");
+    }
+    return htmlText;
+  },
+});
+setCSPTrustedTypesPolicy(policy);
+```
+
+Note that:
+
+- Only a single policy can be set, shared by all `IncludeFragmentElement` fetches.
+- You should call `setCSPTrustedTypesPolicy()` ahead of any other load of `include-fragment-element` in your code.
+
+If your policy itself requires asynchronous work to construct, you can also pass a `Promise<TrustedTypePolicy>`. Pass `null` to remove the policy.
 
 ## Relation to Server Side Includes
 
