@@ -102,7 +102,7 @@ Deferring the display of markup is typically done in the following usage pattern
 
 ### CSP Trusted Types
 
-You can call `setCSPTrustedTypesPolicy(policy: TrustedTypePolicy | Promise<TrustedTypePolicy> | null)` from JavaScript to set a [CSP trusted types policy](https://web.dev/trusted-types/), which can perform (synchronous) filtering or rejection of the server response before it is inserted into the page:
+You can call `setCSPTrustedTypesPolicy(policy: TrustedTypePolicy | Promise<TrustedTypePolicy> | null)` from JavaScript to set a [CSP trusted types policy](https://web.dev/trusted-types/), which can perform (synchronous) filtering or rejection of the `fetch` response before it is inserted into the page:
 
 ```ts
 import { setCSPTrustedTypesPolicy } from "include-fragment-element";
@@ -121,7 +121,7 @@ const policy = trustedTypes.createPolicy("links-only", {
 setCSPTrustedTypesPolicy(policy);
 ```
 
-The policy has access to the server response object. Due to platform constraints, only synchronous from the response can be used in the policy:
+The policy has access to the `fetch` response object. Due to platform constraints, only synchronous information from the response (in addition to the HTML text body) can be used in the policy:
 
 ```ts
 import { setCSPTrustedTypesPolicy } from "include-fragment-element";
@@ -142,8 +142,8 @@ Note that:
 
 - Only a single policy can be set, shared by all `IncludeFragmentElement` fetches.
 - You should call `setCSPTrustedTypesPolicy()` ahead of any other load of `include-fragment-element` in your code.
-
-If your policy itself requires asynchronous work to construct, you can also pass a `Promise<TrustedTypePolicy>`. Pass `null` to remove the policy.
+  - If your policy itself requires asynchronous work to construct, you can also pass a `Promise<TrustedTypePolicy>`.
+  - Pass `null` to remove the policy.
 
 ## Relation to Server Side Includes
 
