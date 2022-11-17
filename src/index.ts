@@ -1,4 +1,8 @@
-const privateData = new WeakMap()
+interface CachedData {
+  src: string
+  data: Promise<string | Error>
+}
+const privateData = new WeakMap<IncludeFragmentElement, CachedData>()
 
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
@@ -41,7 +45,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('accept', val)
   }
 
-  get data(): Promise<string> {
+  get data(): Promise<string | Error> {
     return this.#getData()
   }
 
@@ -97,7 +101,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  load(): Promise<string> {
+  load(): Promise<string | Error> {
     return this.#getData()
   }
 
@@ -133,11 +137,14 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.#busy = true
     this.#observer.unobserve(this)
     try {
-      const html = await this.#getData()
+      const data = await this.#getData()
+      if (data instanceof Error) {
+        throw data
+      }
 
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
-      template.innerHTML = html
+      template.innerHTML = data
       const fragment = document.importNode(template.content, true)
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
@@ -150,12 +157,13 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  #getData(): Promise<string> {
+  async #getData(): Promise<string | Error> {
     const src = this.src
-    let data = privateData.get(this)
-    if (data && data.src === src) {
-      return data.data
+    const cachedData = privateData.get(this)
+    if (cachedData && cachedData.src === src) {
+      return cachedData.data
     } else {
+      let data: Promise<string | Error>
       if (src) {
         data = this.#fetchDataWithEvents()
       } else {
