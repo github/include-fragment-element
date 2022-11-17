@@ -1,4 +1,8 @@
-const privateData = new WeakMap()
+interface CachedData {
+  src: string
+  data: Promise<string | CSPTrustedHTMLToStringable | Error>
+}
+const privateData = new WeakMap<IncludeFragmentElement, CachedData>()
 
 function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
@@ -63,8 +67,8 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   // TODO: Should this return a TrustedHTML if available, or always a string?
-  get data(): Promise<string> {
-    return this.#getStringData()
+  get data(): Promise<string | Error> {
+    return this.#getStringOrErrorData()
   }
 
   #busy = false
@@ -115,9 +119,8 @@ export default class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  // TODO: Should this return `this.#getData()` directly?
-  load(): Promise<string> {
-    return this.#getStringData()
+  load(): Promise<string | Error> {
+    return this.#getStringOrErrorData()
   }
 
   fetch(request: RequestInfo): Promise<Response> {
@@ -152,15 +155,18 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.#busy = true
     this.#observer.unobserve(this)
     try {
-      const html = await this.#getData()
+      const data = await this.#getData()
+      if (data instanceof Error) {
+        throw data
+      }
       // Until TypeScript is natively compatible with CSP trusted types, we
       // have to treat this as a string here.
       // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1246
-      const htmlTreatedAsString = html as string
+      const dataTreatedAsString = data as string
 
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
-      template.innerHTML = htmlTreatedAsString
+      template.innerHTML = dataTreatedAsString
       const fragment = document.importNode(template.content, true)
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
@@ -173,12 +179,13 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  #getData(): Promise<string | CSPTrustedHTMLToStringable> {
+  async #getData(): Promise<string | CSPTrustedHTMLToStringable | Error> {
     const src = this.src
-    let data = privateData.get(this)
-    if (data && data.src === src) {
-      return data.data
+    const cachedData = privateData.get(this)
+    if (cachedData && cachedData.src === src) {
+      return cachedData.data
     } else {
+      let data: Promise<string | CSPTrustedHTMLToStringable | Error>
       if (src) {
         data = this.#fetchDataWithEvents()
       } else {
@@ -189,8 +196,12 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #getStringData(): Promise<string> {
-    return (await this.#getData()).toString()
+  async #getStringOrErrorData(): Promise<string | Error> {
+    const data = await this.#getData()
+    if (data instanceof Error) {
+      return data
+    }
+    return data.toString()
   }
 
   // Functional stand in for the W3 spec "queue a task" paradigm
