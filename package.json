@@ -13,6 +13,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "lint": "eslint . --ext .js,.ts && tsc --noEmit",
+    "format": "eslint --fix . --ext .js,.ts",
     "prebuild": "npm run clean && npm run lint && mkdir dist",
     "build": "tsc",
     "pretest": "npm run build",
