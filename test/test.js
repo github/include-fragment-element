@@ -1,4 +1,5 @@
-/* eslint-env mocha */
+import {assert} from '@open-wc/testing'
+import '../src/index.ts'
 
 let count
 const responses = {
@@ -228,23 +229,51 @@ suite('include-fragment-element', function () {
     )
   })
 
-  test('data is not writable', function () {
+  test('data is not writable', async function () {
     const el = document.createElement('include-fragment')
-    assert.ok(el.data !== 42)
+    let data
+    try {
+      data = await el.data
+    } catch {
+      data = null
+    }
+    assert.ok(data !== 42)
     try {
       el.data = 42
+    } catch (e) {
+      assert.ok(e)
     } finally {
-      assert.ok(el.data !== 42)
+      let data
+      try {
+        data = await el.data
+      } catch {
+        data = null
+      }
+      assert.ok(data !== 42)
     }
   })
 
-  test('data is not configurable', function () {
+  test('data is not configurable', async function () {
     const el = document.createElement('include-fragment')
-    assert.ok(el.data !== undefined)
+    let data
+    try {
+      data = await el.data
+    } catch {
+      data = null
+    }
+    assert.ok(data !== undefined)
     try {
       delete el.data
+    } catch (e) {
+      assert.ok(e)
     } finally {
-      assert.ok(el.data !== undefined)
+      let data
+      try {
+        data = await el.data
+      } catch {
+        data = null
+      }
+      assert.ok(data !== undefined)
     }
   })
 
