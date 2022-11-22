@@ -243,13 +243,13 @@ suite('include-fragment-element', function () {
     } catch (e) {
       assert.ok(e)
     } finally {
-      let data
+      let data2
       try {
-        data = await el.data
+        data2 = await el.data
       } catch {
-        data = null
+        data2 = null
       }
-      assert.ok(data !== 42)
+      assert.ok(data2 !== 42)
     }
   })
 
@@ -267,13 +267,13 @@ suite('include-fragment-element', function () {
     } catch (e) {
       assert.ok(e)
     } finally {
-      let data
+      let data2
       try {
-        data = await el.data
+        data2 = await el.data
       } catch {
-        data = null
+        data2 = null
       }
-      assert.ok(data !== undefined)
+      assert.ok(data2 !== undefined)
     }
   })
 

@@ -7,7 +7,9 @@
     "plugin:github/typescript"
   ],
   "rules": {
-    "github/no-then": "off"
+    "github/no-then": "off",
+    "import/extensions": ["error", "always"],
+    "import/no-unresolved": ["off"]
   },
   "overrides": [
     {
