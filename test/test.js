@@ -1,5 +1,5 @@
 import {assert} from '@open-wc/testing'
-import '../src/index.ts'
+import {setCSPTrustedTypesPolicy} from '../src/index.ts'
 
 let count
 const responses = {
@@ -648,13 +648,11 @@ suite('include-fragment-element', function () {
 
   suite('CSP trusted types', () => {
     teardown(() => {
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy(null)
     })
 
     test('can set a pass-through mock CSP trusted types policy', async function () {
       let policyCalled = false
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
         createHTML: htmlText => {
           policyCalled = true
@@ -672,7 +670,6 @@ suite('include-fragment-element', function () {
 
     test('can set and clear a mutating mock CSP trusted types policy', async function () {
       let policyCalled = false
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
         createHTML: () => {
           policyCalled = true
@@ -686,7 +683,6 @@ suite('include-fragment-element', function () {
       assert.equal('<b>replacement</b>', data)
       assert.ok(policyCalled)
 
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy(null)
       const el2 = document.createElement('include-fragment')
       el2.src = '/hello'
@@ -703,7 +699,6 @@ suite('include-fragment-element', function () {
           return htmlText
         }
       })
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy(policy)
 
       const el = document.createElement('include-fragment')
@@ -714,7 +709,6 @@ suite('include-fragment-element', function () {
     })
 
     test('can reject data using a mock CSP trusted types policy', async function () {
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
         createHTML: () => {
           throw new Error('Rejected data!')
@@ -732,7 +726,6 @@ suite('include-fragment-element', function () {
     })
 
     test('can access headers using a mock CSP trusted types policy', async function () {
-      // eslint-disable-next-line no-undef
       setCSPTrustedTypesPolicy({
         createHTML: (htmlText, response) => {
           if (response.headers.get('X-Server-Sanitized') !== 'sanitized=true') {
