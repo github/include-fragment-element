@@ -105,7 +105,7 @@ Deferring the display of markup is typically done in the following usage pattern
 You can call `setCSPTrustedTypesPolicy(policy: TrustedTypePolicy | Promise<TrustedTypePolicy> | null)` from JavaScript to set a [CSP trusted types policy](https://web.dev/trusted-types/), which can perform (synchronous) filtering or rejection of the `fetch` response before it is inserted into the page:
 
 ```ts
-import { setCSPTrustedTypesPolicy } from "include-fragment-element";
+import IncludeFragmentElement from "include-fragment-element";
 import DOMPurify from "dompurify"; // Using https://github.com/cure53/DOMPurify
 
 // This policy removes all HTML markup except links.
@@ -118,13 +118,13 @@ const policy = trustedTypes.createPolicy("links-only", {
     });
   },
 });
-setCSPTrustedTypesPolicy(policy);
+IncludeFragmentElement.setCSPTrustedTypesPolicy(policy);
 ```
 
 The policy has access to the `fetch` response object. Due to platform constraints, only synchronous information from the response (in addition to the HTML text body) can be used in the policy:
 
 ```ts
-import { setCSPTrustedTypesPolicy } from "include-fragment-element";
+import IncludeFragmentElement from "include-fragment-element";
 
 const policy = trustedTypes.createPolicy("require-server-header", {
   createHTML: (htmlText: string, response: Response) => {
@@ -135,7 +135,7 @@ const policy = trustedTypes.createPolicy("require-server-header", {
     return htmlText;
   },
 });
-setCSPTrustedTypesPolicy(policy);
+IncludeFragmentElement.setCSPTrustedTypesPolicy(policy);
 ```
 
 Note that:
