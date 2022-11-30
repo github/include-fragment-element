@@ -1,5 +1,5 @@
 import {assert} from '@open-wc/testing'
-import {setCSPTrustedTypesPolicy} from '../src/index.ts'
+import {default as IncludeFragmentElement} from '../src/index.ts'
 
 let count
 const responses = {
@@ -648,12 +648,12 @@ suite('include-fragment-element', function () {
 
   suite('CSP trusted types', () => {
     teardown(() => {
-      setCSPTrustedTypesPolicy(null)
+      IncludeFragmentElement.setCSPTrustedTypesPolicy(null)
     })
 
     test('can set a pass-through mock CSP trusted types policy', async function () {
       let policyCalled = false
-      setCSPTrustedTypesPolicy({
+      IncludeFragmentElement.setCSPTrustedTypesPolicy({
         createHTML: htmlText => {
           policyCalled = true
           return htmlText
@@ -670,7 +670,7 @@ suite('include-fragment-element', function () {
 
     test('can set and clear a mutating mock CSP trusted types policy', async function () {
       let policyCalled = false
-      setCSPTrustedTypesPolicy({
+      IncludeFragmentElement.setCSPTrustedTypesPolicy({
         createHTML: () => {
           policyCalled = true
           return '<b>replacement</b>'
@@ -683,7 +683,7 @@ suite('include-fragment-element', function () {
       assert.equal('<b>replacement</b>', data)
       assert.ok(policyCalled)
 
-      setCSPTrustedTypesPolicy(null)
+      IncludeFragmentElement.setCSPTrustedTypesPolicy(null)
       const el2 = document.createElement('include-fragment')
       el2.src = '/hello'
       const data2 = await el2.data
@@ -699,7 +699,7 @@ suite('include-fragment-element', function () {
           return htmlText
         }
       })
-      setCSPTrustedTypesPolicy(policy)
+      IncludeFragmentElement.setCSPTrustedTypesPolicy(policy)
 
       const el = document.createElement('include-fragment')
       el.src = '/hello'
@@ -709,7 +709,7 @@ suite('include-fragment-element', function () {
     })
 
     test('can reject data using a mock CSP trusted types policy', async function () {
-      setCSPTrustedTypesPolicy({
+      IncludeFragmentElement.setCSPTrustedTypesPolicy({
         createHTML: () => {
           throw new Error('Rejected data!')
         }
@@ -726,7 +726,7 @@ suite('include-fragment-element', function () {
     })
 
     test('can access headers using a mock CSP trusted types policy', async function () {
-      setCSPTrustedTypesPolicy({
+      IncludeFragmentElement.setCSPTrustedTypesPolicy({
         createHTML: (htmlText, response) => {
           if (response.headers.get('X-Server-Sanitized') !== 'sanitized=true') {
             // Note: this will reject the contents, but the error may be caught before it shows in the JS console.

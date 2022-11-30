@@ -20,12 +20,13 @@ interface CSPTrustedHTMLToStringable {
   toString: () => string
 }
 let cspTrustedTypesPolicyPromise: Promise<CSPTrustedTypesPolicy> | null = null
-// Passing `null` clears the policy.
-export function setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy> | null): void {
-  cspTrustedTypesPolicyPromise = policy === null ? policy : Promise.resolve(policy)
-}
 
 export default class IncludeFragmentElement extends HTMLElement {
+  // Passing `null` clears the policy.
+  static setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy> | null): void {
+    cspTrustedTypesPolicyPromise = policy === null ? policy : Promise.resolve(policy)
+  }
+
   static get observedAttributes(): string[] {
     return ['src', 'loading']
   }
@@ -62,7 +63,8 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('accept', val)
   }
 
-  // TODO: Should this return a TrustedHTML if available, or always a string?
+  // We will return string or error for API backwards compatibility. We can consider
+  // returning TrustedHTML in the future.
   get data(): Promise<string | Error> {
     return this.#getStringOrErrorData()
   }
