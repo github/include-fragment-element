@@ -1,6 +1,6 @@
 interface CachedData {
   src: string
-  data: Promise<string | Error>
+  data: Promise<string | CSPTrustedHTMLToStringable | Error>
 }
 const privateData = new WeakMap<IncludeFragmentElement, CachedData>()
 
@@ -8,7 +8,25 @@ function isWildcard(accept: string | null) {
   return accept && !!accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 }
 
+// CSP trusted types: We don't want to add `@types/trusted-types` as a
+// dependency, so we use the following types as a stand-in.
+interface CSPTrustedTypesPolicy {
+  createHTML: (s: string, response: Response) => CSPTrustedHTMLToStringable
+}
+// Note: basically every object (and some primitives) in JS satisfy this
+// `CSPTrustedHTMLToStringable` interface, but this is the most compatible shape
+// we can use.
+interface CSPTrustedHTMLToStringable {
+  toString: () => string
+}
+let cspTrustedTypesPolicyPromise: Promise<CSPTrustedTypesPolicy> | null = null
+
 export default class IncludeFragmentElement extends HTMLElement {
+  // Passing `null` clears the policy.
+  static setCSPTrustedTypesPolicy(policy: CSPTrustedTypesPolicy | Promise<CSPTrustedTypesPolicy> | null): void {
+    cspTrustedTypesPolicyPromise = policy === null ? policy : Promise.resolve(policy)
+  }
+
   static get observedAttributes(): string[] {
     return ['src', 'loading']
   }
@@ -45,8 +63,10 @@ export default class IncludeFragmentElement extends HTMLElement {
     this.setAttribute('accept', val)
   }
 
+  // We will return string or error for API backwards compatibility. We can consider
+  // returning TrustedHTML in the future.
   get data(): Promise<string | Error> {
-    return this.#getData()
+    return this.#getStringOrErrorData()
   }
 
   #busy = false
@@ -67,14 +87,10 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   constructor() {
     super()
-    // eslint-disable-next-line github/no-inner-html
-    this.attachShadow({mode: 'open'}).innerHTML = `
-      <style> 
-        :host {
-          display: block;
-        }
-      </style>
-      <slot></slot>`
+    const shadowRoot = this.attachShadow({mode: 'open'})
+    const style = document.createElement('style')
+    style.textContent = `:host {display: block;}`
+    shadowRoot.append(style, document.createElement('slot'))
   }
 
   connectedCallback(): void {
@@ -102,7 +118,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   load(): Promise<string | Error> {
-    return this.#getData()
+    return this.#getStringOrErrorData()
   }
 
   fetch(request: RequestInfo): Promise<Response> {
@@ -141,10 +157,14 @@ export default class IncludeFragmentElement extends HTMLElement {
       if (data instanceof Error) {
         throw data
       }
+      // Until TypeScript is natively compatible with CSP trusted types, we
+      // have to treat this as a string here.
+      // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1246
+      const dataTreatedAsString = data as string
 
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
-      template.innerHTML = data
+      template.innerHTML = dataTreatedAsString
       const fragment = document.importNode(template.content, true)
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
@@ -157,13 +177,13 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #getData(): Promise<string | Error> {
+  async #getData(): Promise<string | CSPTrustedHTMLToStringable | Error> {
     const src = this.src
     const cachedData = privateData.get(this)
     if (cachedData && cachedData.src === src) {
       return cachedData.data
     } else {
-      let data: Promise<string | Error>
+      let data: Promise<string | CSPTrustedHTMLToStringable | Error>
       if (src) {
         data = this.#fetchDataWithEvents()
       } else {
@@ -174,6 +194,14 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
+  async #getStringOrErrorData(): Promise<string | Error> {
+    const data = await this.#getData()
+    if (data instanceof Error) {
+      return data
+    }
+    return data.toString()
+  }
+
   // Functional stand in for the W3 spec "queue a task" paradigm
   async #task(eventsToDispatch: string[]): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 0))
@@ -182,7 +210,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #fetchDataWithEvents(): Promise<string> {
+  async #fetchDataWithEvents(): Promise<string | CSPTrustedHTMLToStringable> {
     // We mimic the same event order as <img>, including the spec
     // which states events must be dispatched after "queue a task".
     // https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
@@ -196,7 +224,13 @@ export default class IncludeFragmentElement extends HTMLElement {
       if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
         throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
       }
-      const data = await response.text()
+
+      const responseText: string = await response.text()
+      let data: string | CSPTrustedHTMLToStringable = responseText
+      if (cspTrustedTypesPolicyPromise) {
+        const cspTrustedTypesPolicy = await cspTrustedTypesPolicyPromise
+        data = cspTrustedTypesPolicy.createHTML(responseText, response)
+      }
 
       // Dispatch `load` and `loadend` async to allow
       // the `load()` promise to resolve _before_ these
