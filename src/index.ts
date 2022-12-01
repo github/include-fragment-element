@@ -1,6 +1,6 @@
 interface CachedData {
   src: string
-  data: Promise<string | CSPTrustedHTMLToStringable | Error>
+  data: Promise<string | CSPTrustedHTMLToStringable>
 }
 const privateData = new WeakMap<IncludeFragmentElement, CachedData>()
 
@@ -65,7 +65,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 
   // We will return string or error for API backwards compatibility. We can consider
   // returning TrustedHTML in the future.
-  get data(): Promise<string | Error> {
+  get data(): Promise<string> {
     return this.#getStringOrErrorData()
   }
 
@@ -117,7 +117,7 @@ export default class IncludeFragmentElement extends HTMLElement {
     })
   }
 
-  load(): Promise<string | Error> {
+  load(): Promise<string> {
     return this.#getStringOrErrorData()
   }
 
@@ -177,13 +177,13 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #getData(): Promise<string | CSPTrustedHTMLToStringable | Error> {
+  async #getData(): Promise<string | CSPTrustedHTMLToStringable> {
     const src = this.src
     const cachedData = privateData.get(this)
     if (cachedData && cachedData.src === src) {
       return cachedData.data
     } else {
-      let data: Promise<string | CSPTrustedHTMLToStringable | Error>
+      let data: Promise<string | CSPTrustedHTMLToStringable>
       if (src) {
         data = this.#fetchDataWithEvents()
       } else {
@@ -194,10 +194,10 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #getStringOrErrorData(): Promise<string | Error> {
+  async #getStringOrErrorData(): Promise<string> {
     const data = await this.#getData()
     if (data instanceof Error) {
-      return data
+      throw data
     }
     return data.toString()
   }
