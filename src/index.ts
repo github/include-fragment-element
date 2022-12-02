@@ -66,7 +66,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   // We will return string or error for API backwards compatibility. We can consider
   // returning TrustedHTML in the future.
   get data(): Promise<string> {
-    return this.#getStringOrErrorData()
+    return this.#getStringData()
   }
 
   #busy = false
@@ -118,7 +118,7 @@ export default class IncludeFragmentElement extends HTMLElement {
   }
 
   load(): Promise<string> {
-    return this.#getStringOrErrorData()
+    return this.#getStringData()
   }
 
   fetch(request: RequestInfo): Promise<Response> {
@@ -194,12 +194,8 @@ export default class IncludeFragmentElement extends HTMLElement {
     }
   }
 
-  async #getStringOrErrorData(): Promise<string> {
-    const data = await this.#getData()
-    if (data instanceof Error) {
-      throw data
-    }
-    return data.toString()
+  async #getStringData(): Promise<string> {
+    return (await this.#getData()).toString()
   }
 
   // Functional stand in for the W3 spec "queue a task" paradigm
