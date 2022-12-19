@@ -125,6 +125,11 @@ export default class IncludeFragmentElement extends HTMLElement {
     return fetch(request)
   }
 
+  refetch() {
+    privateData.delete(this)
+    this.#handleData()
+  }
+
   #observer = new IntersectionObserver(
     entries => {
       for (const entry of entries) {
@@ -169,11 +174,17 @@ export default class IncludeFragmentElement extends HTMLElement {
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {cancelable: true, detail: {fragment}})
       )
-      if (canceled) return
+      if (canceled) {
+        this.#busy = false
+        return
+      }
+
       this.replaceWith(fragment)
       this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
     } catch {
       this.classList.add('is-error')
+    } finally {
+      this.#busy = false
     }
   }
 

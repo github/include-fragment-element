@@ -97,6 +97,7 @@ suite('include-fragment-element', function () {
   teardown(() => {
     document.body.innerHTML = ''
   })
+
   test('create from document.createElement', function () {
     const el = document.createElement('include-fragment')
     assert.equal('INCLUDE-FRAGMENT', el.nodeName)
@@ -139,6 +140,19 @@ suite('include-fragment-element', function () {
         assert.ok(false)
       }
     )
+  })
+
+  test('skips cache when using refetch', async function () {
+    const el = document.createElement('include-fragment')
+    el.src = '/count'
+
+    let data = await el.data
+    assert.equal('1', data)
+
+    el.refetch()
+
+    data = await el.data
+    assert.equal('2', data)
   })
 
   test('data with src attribute', function () {
