@@ -7,29 +7,30 @@ const responses = {
     return new Response('<div id="replaced">hello</div>', {
       status: 200,
       headers: {
-        'Content-Type': 'text/html; charset=utf-8'
-      }
+        'Content-Type': 'text/html; charset=utf-8',
+      },
     })
   },
-  '/slow-hello': function () {
-    return new Promise(resolve => {
+  '/slow-hello': async function () {
+    await new Promise(resolve => {
       setTimeout(resolve, 100)
-    }).then(responses['/hello'])
+    })
+    return responses['/hello']()
   },
   '/one-two': function () {
     return new Response('<p id="one">one</p><p id="two">two</p>', {
       status: 200,
       headers: {
-        'Content-Type': 'text/html'
-      }
+        'Content-Type': 'text/html',
+      },
     })
   },
   '/blank-type': function () {
     return new Response('<div id="replaced">hello</div>', {
       status: 200,
       headers: {
-        'Content-Type': null
-      }
+        'Content-Type': null,
+      },
     })
   },
   '/x-server-sanitized': function () {
@@ -37,13 +38,13 @@ const responses = {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'X-Server-Sanitized': 'sanitized=true'
-      }
+        'X-Server-Sanitized': 'sanitized=true',
+      },
     })
   },
   '/boom': function () {
     return new Response('boom', {
-      status: 500
+      status: 500,
     })
   },
   '/count': function () {
@@ -51,8 +52,8 @@ const responses = {
     return new Response(`${count}`, {
       status: 200,
       headers: {
-        'Content-Type': 'text/html'
-      }
+        'Content-Type': 'text/html',
+      },
     })
   },
   '/fragment': function (request) {
@@ -60,12 +61,12 @@ const responses = {
       return new Response('<div id="fragment">fragment</div>', {
         status: 200,
         headers: {
-          'Content-Type': 'text/fragment+html'
-        }
+          'Content-Type': 'text/fragment+html',
+        },
       })
     } else {
       return new Response('406', {
-        status: 406
+        status: 406,
       })
     }
   },
@@ -73,10 +74,10 @@ const responses = {
     return new Response('alert("what")', {
       status: 200,
       headers: {
-        'Content-Type': 'text/javascript'
-      }
+        'Content-Type': 'text/javascript',
+      },
     })
-  }
+  },
 }
 
 function when(el, eventType) {
@@ -128,18 +129,12 @@ suite('include-fragment-element', function () {
     })
   })
 
-  test('data with src property', function () {
+  test('data with src property', async function () {
     const el = document.createElement('include-fragment')
     el.src = '/hello'
 
-    return el.data.then(
-      function (html) {
-        assert.equal('<div id="replaced">hello</div>', html)
-      },
-      function () {
-        assert.ok(false)
-      }
-    )
+    const html = await el.data
+    assert.equal('<div id="replaced">hello</div>', html)
   })
 
   test('skips cache when using refetch', async function () {
@@ -155,101 +150,71 @@ suite('include-fragment-element', function () {
     assert.equal('2', data)
   })
 
-  test('data with src attribute', function () {
+  test('data with src attribute', async function () {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/hello')
 
-    return el.data.then(
-      function (html) {
-        assert.equal('<div id="replaced">hello</div>', html)
-      },
-      function () {
-        assert.ok(false)
-      }
-    )
+    const html = await el.data
+    assert.equal('<div id="replaced">hello</div>', html)
   })
 
-  test('setting data with src property multiple times', function () {
+  test('setting data with src property multiple times', async function () {
     const el = document.createElement('include-fragment')
     el.src = '/count'
 
-    return el.data
-      .then(function (text) {
-        assert.equal('1', text)
-        el.src = '/count'
-      })
-      .then(function () {
-        return el.data
-      })
-      .then(function (text) {
-        assert.equal('1', text)
-      })
-      ['catch'](function () {
-        assert.ok(false)
-      })
+    const text = await el.data
+    assert.equal('1', text)
+    el.src = '/count'
+    const text2 = await el.data
+    assert.equal('1', text2)
   })
 
-  test('setting data with src attribute multiple times', function () {
+  test('setting data with src attribute multiple times', async function () {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/count')
 
-    return el.data
-      .then(function (text) {
-        assert.equal('1', text)
-        el.setAttribute('src', '/count')
-      })
-      .then(function () {
-        return el.data
-      })
-      .then(function (text) {
-        assert.equal('1', text)
-      })
-      ['catch'](function () {
-        assert.ok(false)
-      })
+    const text = await el.data
+    assert.equal('1', text)
+    el.setAttribute('src', '/count')
+    const text2 = await el.data
+    assert.equal('1', text2)
   })
 
-  test('throws on incorrect Content-Type', function () {
+  test('throws on incorrect Content-Type', async function () {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/test.js')
 
-    return el.data.then(
-      () => {
-        assert.ok(false)
-      },
-      error => {
-        assert.match(error, /expected text\/html but was text\/javascript/)
-      }
-    )
+    try {
+      await el.data
+      throw new Error('el.data did not throw')
+    } catch (error) {
+      assert.match(error, /expected text\/html but was text\/javascript/)
+    }
   })
 
-  test('throws on non-matching Content-Type', function () {
+  test('throws on non-matching Content-Type', async function () {
     const el = document.createElement('include-fragment')
     el.setAttribute('accept', 'text/fragment+html')
     el.setAttribute('src', '/hello')
 
-    return el.data.then(
-      () => {
-        assert.ok(false)
-      },
-      error => {
-        assert.match(error, /expected text\/fragment\+html but was text\/html; charset=utf-8/)
-      }
-    )
+    try {
+      await el.data
+      throw new Error('el.data did not throw')
+    } catch (error) {
+      assert.match(error, /expected text\/fragment\+html but was text\/html; charset=utf-8/)
+    }
   })
 
-  test('throws on 406', function () {
+  test('throws on 406', async function () {
     const el = document.createElement('include-fragment')
     el.setAttribute('src', '/fragment')
 
-    return el.data.then(
-      () => {
-        assert.ok(false)
-      },
-      error => {
-        assert.match(error, /the server responded with a status of 406/)
-      }
-    )
+    try {
+      await el.data
+      throw new Error('el.data did not throw')
+    } catch (error) {
+      assert.match(error, /the server responded with a status of 406/)
+    }
   })
 
   test('data is not writable', async function () {
@@ -300,18 +265,17 @@ suite('include-fragment-element', function () {
     }
   })
 
-  test('replaces element on 200 status', function () {
+  test('replaces element on 200 status', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/hello">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'load').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await when(div.firstChild, 'load')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
-  test('does not replace element if it has no parent', function () {
+  test('does not replace element if it has no parent', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment>loading</include-fragment>'
     document.body.appendChild(div)
@@ -335,87 +299,79 @@ suite('include-fragment-element', function () {
       div.appendChild(fragment)
     }, 10)
 
-    return when(fragment, 'load').then(() => {
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await when(fragment, 'load')
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
-  test('replaces with several new elements on 200 status', function () {
+  test('replaces with several new elements on 200 status', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/one-two">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'load').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#one').textContent, 'one')
-      assert.equal(document.querySelector('#two').textContent, 'two')
-    })
+    await when(div.firstChild, 'load')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#one').textContent, 'one')
+    assert.equal(document.querySelector('#two').textContent, 'two')
   })
 
-  test('replaces with response with accept header for any', function () {
+  test('replaces with response with accept header for any', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/test.js" accept="*/*">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'load').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.match(document.body.textContent, /alert\("what"\)/)
-    })
+    await when(div.firstChild, 'load')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.match(document.body.textContent, /alert\("what"\)/)
   })
 
-  test('replaces with response with the right accept header', function () {
+  test('replaces with response with the right accept header', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/fragment" accept="text/fragment+html">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'load').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#fragment').textContent, 'fragment')
-    })
+    await when(div.firstChild, 'load')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#fragment').textContent, 'fragment')
   })
 
-  test('error event is not cancelable or bubbles', function () {
+  test('error event is not cancelable or bubbles', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'error').then(event => {
-      assert.equal(event.bubbles, false)
-      assert.equal(event.cancelable, false)
-    })
+    const event = await when(div.firstChild, 'error')
+    assert.equal(event.bubbles, false)
+    assert.equal(event.cancelable, false)
   })
 
-  test('adds is-error class on 500 status', function () {
+  test('adds is-error class on 500 status', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/boom">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'error').then(() =>
-      assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
-    )
+    await when(div.firstChild, 'error')
+    return assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
   })
 
-  test('adds is-error class on mising Content-Type', function () {
+  test('adds is-error class on mising Content-Type', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/blank-type">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'error').then(() =>
-      assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
-    )
+    await when(div.firstChild, 'error')
+    return assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
   })
 
-  test('adds is-error class on incorrect Content-Type', function () {
+  test('adds is-error class on incorrect Content-Type', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment src="/fragment">loading</include-fragment>'
     document.body.appendChild(div)
 
-    return when(div.firstChild, 'error').then(() =>
-      assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
-    )
+    await when(div.firstChild, 'error')
+    return assert.ok(document.querySelector('include-fragment').classList.contains('is-error'))
   })
 
-  test('replaces element when src attribute is changed', function () {
+  test('replaces element when src attribute is changed', async function () {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -423,13 +379,12 @@ suite('include-fragment-element', function () {
       elem.src = '/hello'
     }, 10)
 
-    return when(elem, 'load').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await when(elem, 'load')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
-  test('fires replaced event', function () {
+  test('fires replaced event', async function () {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -437,13 +392,12 @@ suite('include-fragment-element', function () {
       elem.src = '/hello'
     }, 10)
 
-    return when(elem, 'include-fragment-replaced').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await when(elem, 'include-fragment-replaced')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
-  test('fires events for include-fragment node replacement operations for fragment manipulation', function () {
+  test('fires events for include-fragment node replacement operations for fragment manipulation', async function () {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -455,13 +409,12 @@ suite('include-fragment-element', function () {
       event.detail.fragment.querySelector('*').textContent = 'hey'
     })
 
-    return when(elem, 'include-fragment-replaced').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hey')
-    })
+    await when(elem, 'include-fragment-replaced')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hey')
   })
 
-  test('does not replace node if event was canceled ', function () {
+  test('does not replace node if event was canceled ', async function () {
     const elem = document.createElement('include-fragment')
     document.body.appendChild(elem)
 
@@ -473,9 +426,8 @@ suite('include-fragment-element', function () {
       event.preventDefault()
     })
 
-    return when(elem, 'load').then(() => {
-      assert(document.querySelector('include-fragment'), 'Node should not be replaced')
-    })
+    await when(elem, 'load')
+    assert(document.querySelector('include-fragment'), 'Node should not be replaced')
   })
 
   suite('event order', () => {
@@ -489,31 +441,33 @@ suite('include-fragment-element', function () {
       window.setTimeout = originalSetTimeout
     })
 
-    test('loading events fire in guaranteed order', function () {
+    test('loading events fire in guaranteed order', async function () {
       const elem = document.createElement('include-fragment')
       const order = []
       const connected = []
       const events = [
-        when(elem, 'loadend').then(() => {
+        (async () => {
+          await when(elem, 'loadend')
           order.push('loadend')
           connected.push(elem.isConnected)
-        }),
-        when(elem, 'load').then(() => {
+        })(),
+        (async () => {
+          await when(elem, 'load')
           order.push('load')
           connected.push(elem.isConnected)
-        }),
-        when(elem, 'loadstart').then(() => {
+        })(),
+        (async () => {
+          await when(elem, 'loadstart')
           order.push('loadstart')
           connected.push(elem.isConnected)
-        })
+        })(),
       ]
       elem.src = '/hello'
       document.body.appendChild(elem)
 
-      return Promise.all(events).then(() => {
-        assert.deepStrictEqual(order, ['loadstart', 'load', 'loadend'])
-        assert.deepStrictEqual(connected, [true, false, false])
-      })
+      await Promise.all(events)
+      assert.deepStrictEqual(order, ['loadstart', 'load', 'loadend'])
+      assert.deepStrictEqual(connected, [true, false, false])
     })
   })
 
@@ -533,14 +487,13 @@ suite('include-fragment-element', function () {
     assert(div.firstChild.loading, 'eager')
   })
 
-  test('loading=lazy loads if already visible on page', function () {
+  test('loading=lazy loads if already visible on page', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
     document.body.appendChild(div)
-    return when(div.firstChild, 'include-fragment-replaced').then(() => {
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await when(div.firstChild, 'include-fragment-replaced')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
   test('loading=lazy does not load if not visible on page', function () {
@@ -549,10 +502,11 @@ suite('include-fragment-element', function () {
     div.hidden = true
     document.body.appendChild(div)
     return Promise.race([
-      when(div.firstChild, 'load').then(() => {
+      (async () => {
+        await when(div.firstChild, 'load')
         throw new Error('<include-fragment loading=lazy> loaded too early')
-      }),
-      new Promise(resolve => setTimeout(resolve, 100))
+      })(),
+      new Promise(resolve => setTimeout(resolve, 100)),
     ])
   })
 
@@ -563,14 +517,15 @@ suite('include-fragment-element', function () {
     document.body.appendChild(div)
     div.firstChild.src = '/hello'
     return Promise.race([
-      when(div.firstChild, 'load').then(() => {
+      (async () => {
+        await when(div.firstChild, 'load')
         throw new Error('<include-fragment loading=lazy> loaded too early')
-      }),
-      new Promise(resolve => setTimeout(resolve, 100))
+      })(),
+      new Promise(resolve => setTimeout(resolve, 100)),
     ])
   })
 
-  test('loading=lazy loads as soon as element visible on page', function () {
+  test('loading=lazy loads as soon as element visible on page', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
     div.hidden = true
@@ -584,23 +539,21 @@ suite('include-fragment-element', function () {
       div.firstChild.removeEventListener('load', fail)
     }, 100)
 
-    return when(div.firstChild, 'load').then(() => {
-      assert.ok(!failed, 'Load occured too early')
-    })
+    await when(div.firstChild, 'load')
+    assert.ok(!failed, 'Load occured too early')
   })
 
-  test('loading=lazy does not observably change during load cycle', function () {
+  test('loading=lazy does not observably change during load cycle', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
     const elem = div.firstChild
     document.body.appendChild(div)
 
-    return when(elem, 'loadstart').then(() => {
-      assert.equal(elem.loading, 'lazy', 'loading mode changed observably')
-    })
+    await when(elem, 'loadstart')
+    assert.equal(elem.loading, 'lazy', 'loading mode changed observably')
   })
 
-  test('loading=lazy can be switched to eager to load', function () {
+  test('loading=lazy can be switched to eager to load', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
     div.hidden = true
@@ -614,12 +567,11 @@ suite('include-fragment-element', function () {
       div.firstChild.removeEventListener('load', fail)
     }, 100)
 
-    return when(div.firstChild, 'load').then(() => {
-      assert.ok(!failed, 'Load occured too early')
-    })
+    await when(div.firstChild, 'load')
+    assert.ok(!failed, 'Load occured too early')
   })
 
-  test('loading=lazy wont load twice even if load is manually called', function () {
+  test('loading=lazy wont load twice even if load is manually called', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/slow-hello">loading</include-fragment>'
     div.hidden = true
@@ -633,14 +585,14 @@ suite('include-fragment-element', function () {
 
     const replacedPromise = when(div.firstChild, 'include-fragment-replaced')
 
-    return load.then(replacedPromise).then(() => {
-      assert.equal(loadCount, 1, 'Load occured too many times')
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await load
+    await replacedPromise
+    assert.equal(loadCount, 1, 'Load occured too many times')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
-  test('include-fragment-replaced is only called once', function () {
+  test('include-fragment-replaced is only called once', async function () {
     const div = document.createElement('div')
     div.hidden = true
     document.body.append(div)
@@ -653,11 +605,10 @@ suite('include-fragment-element', function () {
       div.hidden = false
     }, 0)
 
-    return when(div.firstChild, 'include-fragment-replaced').then(() => {
-      assert.equal(loadCount, 1, 'Load occured too many times')
-      assert.equal(document.querySelector('include-fragment'), null)
-      assert.equal(document.querySelector('#replaced').textContent, 'hello')
-    })
+    await when(div.firstChild, 'include-fragment-replaced')
+    assert.equal(loadCount, 1, 'Load occured too many times')
+    assert.equal(document.querySelector('include-fragment'), null)
+    assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
 
   suite('CSP trusted types', () => {
@@ -671,7 +622,7 @@ suite('include-fragment-element', function () {
         createHTML: htmlText => {
           policyCalled = true
           return htmlText
-        }
+        },
       })
 
       const el = document.createElement('include-fragment')
@@ -688,7 +639,7 @@ suite('include-fragment-element', function () {
         createHTML: () => {
           policyCalled = true
           return '<b>replacement</b>'
-        }
+        },
       })
 
       const el = document.createElement('include-fragment')
@@ -706,12 +657,11 @@ suite('include-fragment-element', function () {
 
     test('can set a real CSP trusted types policy in Chromium', async function () {
       let policyCalled = false
-      // eslint-disable-next-line no-undef
       const policy = globalThis.trustedTypes.createPolicy('test1', {
         createHTML: htmlText => {
           policyCalled = true
           return htmlText
-        }
+        },
       })
       IncludeFragmentElement.setCSPTrustedTypesPolicy(policy)
 
@@ -726,7 +676,7 @@ suite('include-fragment-element', function () {
       IncludeFragmentElement.setCSPTrustedTypesPolicy({
         createHTML: () => {
           throw new Error('Rejected data!')
-        }
+        },
       })
 
       const el = document.createElement('include-fragment')
@@ -747,7 +697,7 @@ suite('include-fragment-element', function () {
             throw new Error('Rejecting HTML that was not marked by the server as sanitized.')
           }
           return htmlText
-        }
+        },
       })
 
       const el = document.createElement('include-fragment')
