@@ -27,7 +27,7 @@
     "pretest": "npm run build",
     "test": "web-test-runner",
     "postpublish": "npm publish --ignore-scripts --@github:registry='https://npm.pkg.github.com'",
-    "manifest": "custom-elements-manifest analize"
+    "manifest": "custom-elements-manifest analyze"
   },
   "prettier": "@github/prettier-config",
   "devDependencies": {
