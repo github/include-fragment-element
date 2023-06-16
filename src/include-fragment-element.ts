@@ -263,16 +263,3 @@ export class IncludeFragmentElement extends HTMLElement {
     }
   }
 }
-
-declare global {
-  interface Window {
-    IncludeFragmentElement: typeof IncludeFragmentElement
-  }
-  interface HTMLElementTagNameMap {
-    'include-fragment': IncludeFragmentElement
-  }
-}
-if (!window.customElements.get('include-fragment')) {
-  window.IncludeFragmentElement = IncludeFragmentElement
-  window.customElements.define('include-fragment', IncludeFragmentElement)
-}
