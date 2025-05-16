@@ -540,7 +540,7 @@ suite('include-fragment-element', function () {
     }, 100)
 
     await when(div.firstChild, 'load')
-    assert.ok(!failed, 'Load occured too early')
+    assert.ok(!failed, 'Load occurred too early')
   })
 
   test('loading=lazy does not observably change during load cycle', async function () {
@@ -568,7 +568,7 @@ suite('include-fragment-element', function () {
     }, 100)
 
     await when(div.firstChild, 'load')
-    assert.ok(!failed, 'Load occured too early')
+    assert.ok(!failed, 'Load occurred too early')
   })
 
   test('loading=lazy wont load twice even if load is manually called', async function () {
@@ -587,7 +587,7 @@ suite('include-fragment-element', function () {
 
     await load
     await replacedPromise
-    assert.equal(loadCount, 1, 'Load occured too many times')
+    assert.equal(loadCount, 1, 'Load occurred too many times')
     assert.equal(document.querySelector('include-fragment'), null)
     assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
@@ -606,7 +606,7 @@ suite('include-fragment-element', function () {
     }, 0)
 
     await when(div.firstChild, 'include-fragment-replaced')
-    assert.equal(loadCount, 1, 'Load occured too many times')
+    assert.equal(loadCount, 1, 'Load occurred too many times')
     assert.equal(document.querySelector('include-fragment'), null)
     assert.equal(document.querySelector('#replaced').textContent, 'hello')
   })
