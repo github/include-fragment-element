@@ -220,10 +220,10 @@ export class IncludeFragmentElement extends HTMLElement {
   }
 
   // Functional stand in for the W3 spec "queue a task" paradigm
-  async #task(eventsToDispatch: string[]): Promise<void> {
+  async #task(eventsToDispatch: string[], error?: Error): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 0))
     for (const eventType of eventsToDispatch) {
-      this.dispatchEvent(new Event(eventType))
+      this.dispatchEvent(error ? new CustomEvent(eventType, {detail: {error}}) : new Event(eventType))
     }
   }
 
@@ -258,7 +258,7 @@ export class IncludeFragmentElement extends HTMLElement {
       // Dispatch `error` and `loadend` async to allow
       // the `load()` promise to resolve _before_ these
       // events are fired.
-      this.#task(['error', 'loadend'])
+      this.#task(['error', 'loadend'], error)
       throw error
     }
   }
