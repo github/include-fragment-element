@@ -9,11 +9,11 @@
         {
           "kind": "variable",
           "name": "IncludeFragmentElement",
-          "default": "class _IncludeFragmentElement extends HTMLElement {\n  static"
+          "default": "class extends HTMLElement {\n  constructor() {\n    super(...arguments);\n    _IncludeFragmentElement_instances.add(this);\n    _IncludeFragmentElement_busy.set(this, false);\n    _IncludeFragmentElement_observer.set(this, new IntersectionObserver((entries) => {\n      for (const entry of entries) {\n        if (entry.isIntersecting) {\n          const { target } = entry;\n          __classPrivateFieldGet(this, _IncludeFragmentElement_observer, \"f\").unobserve(target);\n          if (!(target instanceof IncludeFragmentElement))\n            return;\n          if (target.loading === \"lazy\") {\n            __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_handleData).call(this);\n          }\n        }\n      }\n    }, {\n      rootMargin: \"0px 0px 256px 0px\",\n      threshold: 0.01\n    }));\n  }\n  static define(tag = \"include-fragment\", registry = customElements) {\n    registry.define(tag, this);\n    return this;\n  }\n  static setCSPTrustedTypesPolicy(policy) {\n    cspTrustedTypesPolicyPromise = policy === null ? policy : Promise.resolve(policy);\n  }\n  static get observedAttributes() {\n    return [\"src\", \"loading\"];\n  }\n  get src() {\n    const src = this.getAttribute(\"src\");\n    if (src) {\n      const link = this.ownerDocument.createElement(\"a\");\n      link.href = src;\n      return link.href;\n    } else {\n      return \"\";\n    }\n  }\n  set src(val) {\n    this.setAttribute(\"src\", val);\n  }\n  get loading() {\n    if (this.getAttribute(\"loading\") === \"lazy\")\n      return \"lazy\";\n    return \"eager\";\n  }\n  set loading(value) {\n    this.setAttribute(\"loading\", value);\n  }\n  get accept() {\n    return this.getAttribute(\"accept\") || \"\";\n  }\n  set accept(val) {\n    this.setAttribute(\"accept\", val);\n  }\n  get data() {\n    return __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_getStringOrErrorData).call(this);\n  }\n  attributeChangedCallback(attribute, oldVal) {\n    if (attribute === \"src\") {\n      if (this.isConnected && this.loading === \"eager\") {\n        __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_handleData).call(this);\n      }\n    } else if (attribute === \"loading\") {\n      if (this.isConnected && oldVal !== \"eager\" && this.loading === \"eager\") {\n        __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_handleData).call(this);\n      }\n    }\n  }\n  connectedCallback() {\n    if (!this.shadowRoot) {\n      this.attachShadow({ mode: \"open\" });\n      const style = document.createElement(\"style\");\n      style.textContent = `:host {display: block;}`;\n      this.shadowRoot.append(style, document.createElement(\"slot\"));\n    }\n    if (this.src && this.loading === \"eager\") {\n      __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_handleData).call(this);\n    }\n    if (this.loading === \"lazy\") {\n      __classPrivateFieldGet(this, _IncludeFragmentElement_observer, \"f\").observe(this);\n    }\n  }\n  request() {\n    const src = this.src;\n    if (!src) {\n      throw new Error(\"missing src\");\n    }\n    return new Request(src, {\n      method: \"GET\",\n      credentials: \"same-origin\",\n      headers: {\n        Accept: this.accept || \"text/html\"\n      }\n    });\n  }\n  load() {\n    return __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_getStringOrErrorData).call(this);\n  }\n  fetch(request) {\n    return fetch(request);\n  }\n  refetch() {\n    privateData.delete(this);\n    __classPrivateFieldGet(this, _IncludeFragmentElement_instances, \"m\", _IncludeFragmentElement_handleData).call(this);\n  }\n}"
         },
         {
           "kind": "variable",
-          "name": "index_default",
+          "name": "dist_default",
           "default": "IncludeFragmentElement"
         }
       ],
@@ -30,7 +30,7 @@
           "kind": "js",
           "name": "default",
           "declaration": {
-            "name": "index_default",
+            "name": "dist_default",
             "module": "dist/bundle.js"
           }
         }
@@ -187,6 +187,12 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "test/test.js",
+      "declarations": [],
+      "exports": []
     },
     {
       "kind": "javascript-module",
@@ -377,13 +383,6 @@
                   "type": {
                     "text": "string[]"
                   }
-                },
-                {
-                  "name": "error",
-                  "optional": true,
-                  "type": {
-                    "text": "Error"
-                  }
                 }
               ]
             },
@@ -408,6 +407,12 @@
               "name": "include-fragment-replaced",
               "type": {
                 "text": "CustomEvent"
+              }
+            },
+            {
+              "name": "eventType",
+              "type": {
+                "text": "Event"
               }
             }
           ],
@@ -466,12 +471,6 @@
           }
         }
       ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "test/test.js",
-      "declarations": [],
-      "exports": []
     }
   ]
 }
