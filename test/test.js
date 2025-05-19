@@ -342,7 +342,7 @@ suite('include-fragment-element', function () {
     const event = await when(div.firstChild, 'error')
     assert.equal(event.bubbles, false)
     assert.equal(event.cancelable, false)
-    assert.equal(event.detail.error, 'Failed to load resource: the server responded with a status of 500')
+    assert.equal(event.detail.error, 'Error: Failed to load resource: the server responded with a status of 500')
   })
 
   test('adds is-error class on 500 status', async function () {
