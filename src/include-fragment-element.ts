@@ -258,7 +258,7 @@ export class IncludeFragmentElement extends HTMLElement {
       // Dispatch `error` and `loadend` async to allow
       // the `load()` promise to resolve _before_ these
       // events are fired.
-      this.#task(['error', 'loadend'], error)
+      this.#task(['error', 'loadend'], error as Error)
       throw error
     }
   }
