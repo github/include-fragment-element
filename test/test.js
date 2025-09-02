@@ -343,7 +343,10 @@ suite('include-fragment-element', function () {
     assert.equal(event.bubbles, false)
     assert.equal(event.cancelable, false)
     assert.instanceOf(event.detail.error, Error)
-    assert.equal(event.detail.error.message, 'Failed to load resource: expected text/html but was text/plain;charset=UTF-8')
+    assert.equal(
+      event.detail.error.message,
+      'Failed to load resource: expected text/html but was text/plain;charset=UTF-8',
+    )
   })
 
   test('adds is-error class on 500 status', async function () {
