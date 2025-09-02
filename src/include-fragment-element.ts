@@ -234,6 +234,10 @@ export class IncludeFragmentElement extends HTMLElement {
     try {
       await this.#task(['loadstart'])
       const response = await this.fetch(this.request())
+      const ct = response.headers.get('Content-Type')
+      if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
+        throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
+      }
       if (response.status !== 200) {
         throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
       }
@@ -255,10 +259,6 @@ export class IncludeFragmentElement extends HTMLElement {
       // the `load()` promise to resolve _before_ these
       // events are fired.
       this.#task(['error', 'loadend'], error as Error)
-      const ct = response.headers.get('Content-Type')
-      if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept ? this.accept : 'text/html'))) {
-        throw new Error(`Failed to load resource: expected ${this.accept || 'text/html'} but was ${ct}`)
-      }
       throw error
     }
   }
