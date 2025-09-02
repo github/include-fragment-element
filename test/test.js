@@ -213,7 +213,7 @@ suite('include-fragment-element', function () {
       await el.data
       throw new Error('el.data did not throw')
     } catch (error) {
-      assert.match(error, /the server responded with a status of 406/)
+      assert.match(error, /expected text\/html but was text\/plain/)
     }
   })
 
@@ -343,7 +343,7 @@ suite('include-fragment-element', function () {
     assert.equal(event.bubbles, false)
     assert.equal(event.cancelable, false)
     assert.instanceOf(event.detail.error, Error)
-    assert.equal(event.detail.error.message, 'Failed to load resource: the server responded with a status of 500')
+    assert.equal(event.detail.error.message, 'Failed to load resource: expected text/html but was text/plain;charset=UTF-8')
   })
 
   test('adds is-error class on 500 status', async function () {
