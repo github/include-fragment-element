@@ -173,6 +173,21 @@ export class IncludeFragmentElement extends HTMLElement {
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
       template.innerHTML = dataTreatedAsString
+      // When no CSP Trusted Types policy has been configured, the response is
+      // untrusted markup. Strip script elements and inline event handler /
+      // `javascript:` attributes before insertion to reduce XSS exposure by default.
+      if (!cspTrustedTypesPolicyPromise) {
+        for (const scriptEl of template.content.querySelectorAll('script')) {
+          scriptEl.remove()
+        }
+        for (const el of template.content.querySelectorAll('*')) {
+          for (const attr of [...el.attributes]) {
+            if (/^on/i.test(attr.name) || (/^(?:href|src)$/i.test(attr.name) && /^\s*javascript:/i.test(attr.value))) {
+              el.removeAttribute(attr.name)
+            }
+          }
+        }
+      }
       const fragment = document.importNode(template.content, true)
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {
