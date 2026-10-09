@@ -78,6 +78,50 @@ const responses = {
       },
     })
   },
+  '/sanitize-script': function () {
+    return new Response(
+      '<div id="sanitize-target">before<script>window.scriptPayloadExecuted = true</script>after</div>',
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+      },
+    )
+  },
+  '/sanitize-onerror': function () {
+    return new Response(
+      '<div id="sanitize-target"><img src="data:," onerror="window.onerrorPayloadExecuted = true"></div>',
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+      },
+    )
+  },
+  '/sanitize-javascript-href': function () {
+    return new Response(
+      '<div id="sanitize-target"><a href="javascript:window.hrefPayloadExecuted = true">click me</a></div>',
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+      },
+    )
+  },
+  '/sanitize-iframe-srcdoc': function () {
+    return new Response(
+      '<div id="sanitize-target"><iframe srcdoc="&lt;script&gt;window.iframePayloadExecuted = true&lt;/script&gt;"></iframe></div>',
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+      },
+    )
+  },
 }
 
 function when(el, eventType) {
@@ -614,6 +658,82 @@ suite('include-fragment-element', function () {
     assert.equal(loadCount, 1, 'Load occurred too many times')
     assert.equal(document.querySelector('include-fragment'), null)
     assert.equal(document.querySelector('#replaced').textContent, 'hello')
+  })
+
+  suite('default sanitization (no CSP trusted types policy)', () => {
+    teardown(() => {
+      IncludeFragmentElement.setCSPTrustedTypesPolicy(null)
+      delete window.scriptPayloadExecuted
+      delete window.onerrorPayloadExecuted
+      delete window.hrefPayloadExecuted
+      delete window.iframePayloadExecuted
+    })
+
+    test('strips <script> elements from the replaced fragment', async function () {
+      const div = document.createElement('div')
+      div.innerHTML = `<include-fragment src="/sanitize-script">loading</include-fragment>`
+      document.body.append(div)
+
+      await when(div.firstChild, 'include-fragment-replaced')
+
+      assert.equal(document.querySelector('#sanitize-target script'), null)
+      assert.equal(window.scriptPayloadExecuted, undefined)
+    })
+
+    test('strips inline event handler attributes from the replaced fragment', async function () {
+      const div = document.createElement('div')
+      div.innerHTML = `<include-fragment src="/sanitize-onerror">loading</include-fragment>`
+      document.body.append(div)
+
+      await when(div.firstChild, 'include-fragment-replaced')
+
+      const img = document.querySelector('#sanitize-target img')
+      assert.ok(img)
+      assert.equal(img.getAttribute('onerror'), null)
+
+      // Give the (now harmless) img a chance to fire its error event.
+      await new Promise(resolve => setTimeout(resolve, 50))
+      assert.equal(window.onerrorPayloadExecuted, undefined)
+    })
+
+    test('strips javascript: URL attributes from the replaced fragment', async function () {
+      const div = document.createElement('div')
+      div.innerHTML = `<include-fragment src="/sanitize-javascript-href">loading</include-fragment>`
+      document.body.append(div)
+
+      await when(div.firstChild, 'include-fragment-replaced')
+
+      const link = document.querySelector('#sanitize-target a')
+      assert.ok(link)
+      const href = link.getAttribute('href')
+      assert.ok(!href || !href.startsWith('javascript:'))
+    })
+
+    test('strips <iframe srcdoc> elements that could execute nested scripts', async function () {
+      const div = document.createElement('div')
+      div.innerHTML = `<include-fragment src="/sanitize-iframe-srcdoc">loading</include-fragment>`
+      document.body.append(div)
+
+      await when(div.firstChild, 'include-fragment-replaced')
+
+      assert.equal(document.querySelector('#sanitize-target iframe'), null)
+    })
+
+    test('does not run the default sanitizer when a CSP trusted types policy is configured', async function () {
+      IncludeFragmentElement.setCSPTrustedTypesPolicy({
+        createHTML: htmlText => htmlText,
+      })
+
+      const div = document.createElement('div')
+      div.innerHTML = `<include-fragment src="/sanitize-onerror">loading</include-fragment>`
+      document.body.append(div)
+
+      await when(div.firstChild, 'include-fragment-replaced')
+
+      const img = document.querySelector('#sanitize-target img')
+      assert.ok(img)
+      assert.equal(img.getAttribute('onerror'), 'window.onerrorPayloadExecuted = true')
+    })
   })
 
   suite('CSP trusted types', () => {

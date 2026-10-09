@@ -140,6 +140,7 @@ IncludeFragmentElement.setCSPTrustedTypesPolicy(policy);
 
 Note that:
 
+- If no CSP trusted types policy is set, fetched HTML is run through [DOMPurify](https://github.com/cure53/DOMPurify)'s default allowlist-based sanitizer before being inserted into the page. Setting a policy (as above) takes full responsibility for sanitization and bypasses this default.
 - Only a single policy can be set, shared by all `IncludeFragmentElement` fetches.
 - You should call `setCSPTrustedTypesPolicy()` ahead of any other load of `include-fragment-element` in your code.
   - If your policy itself requires asynchronous work to construct, you can also pass a `Promise<TrustedTypePolicy>`.

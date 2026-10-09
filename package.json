@@ -47,5 +47,8 @@
   "customElements": "custom-elements.json",
   "eslintIgnore": [
     "dist/"
-  ]
+  ],
+  "dependencies": {
+    "dompurify": "^3.4.16"
+  }
 }

@@ -4,6 +4,7 @@
     "target": "es2017",
     "strict": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "declaration": true,
     "outDir": "dist",
     "lib": ["dom", "dom.iterable", "es2020"],
