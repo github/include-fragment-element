@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 interface CachedData {
   src: string
   data: Promise<string | CSPTrustedHTMLToStringable>
@@ -170,9 +172,17 @@ export class IncludeFragmentElement extends HTMLElement {
       // https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/1246
       const dataTreatedAsString = data as string
 
+      // When no CSP Trusted Types policy has been configured, the response is
+      // untrusted markup. Run it through a vetted allowlist-based sanitizer
+      // (DOMPurify) before insertion, as recommended in the README's CSP
+      // Trusted Types example, to protect against XSS by default.
+      const safeDataTreatedAsString = cspTrustedTypesPolicyPromise
+        ? dataTreatedAsString
+        : DOMPurify.sanitize(dataTreatedAsString)
+
       const template = document.createElement('template')
       // eslint-disable-next-line github/no-inner-html
-      template.innerHTML = dataTreatedAsString
+      template.innerHTML = safeDataTreatedAsString
       const fragment = document.importNode(template.content, true)
       const canceled = !this.dispatchEvent(
         new CustomEvent('include-fragment-replace', {
