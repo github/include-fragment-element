@@ -109,6 +109,26 @@ suite('include-fragment-element', function () {
     assert.equal('INCLUDE-FRAGMENT', el.nodeName)
   })
 
+  test('copies a preconnection nonce property to the shadow style', function () {
+    const container = document.createElement('div')
+    const el = document.createElement('include-fragment')
+    el.nonce = 'test-nonce'
+    container.appendChild(el)
+
+    document.body.appendChild(container)
+    assert.equal('test-nonce', el.nonce)
+    const style = el.shadowRoot.querySelector('style')
+    assert.equal('test-nonce', style.nonce)
+
+    container.removeChild(el)
+    document.body.appendChild(el)
+    assert.equal(style, el.shadowRoot.querySelector('style'))
+
+    const noNonce = document.createElement('include-fragment')
+    document.body.appendChild(noNonce)
+    assert.equal('', noNonce.shadowRoot.querySelector('style').nonce)
+  })
+
   test('src property', function () {
     const el = document.createElement('include-fragment')
     assert.equal(null, el.getAttribute('src'))
