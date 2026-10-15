@@ -94,6 +94,9 @@ export class IncludeFragmentElement extends HTMLElement {
     if (!this.shadowRoot) {
       this.attachShadow({mode: 'open'})
       const style = document.createElement('style')
+      if (this.nonce) {
+        style.nonce = this.nonce
+      }
       style.textContent = `:host {display: block;}`
       this.shadowRoot!.append(style, document.createElement('slot'))
     }
