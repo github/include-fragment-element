@@ -83,6 +83,9 @@ export class IncludeFragmentElement extends HTMLElement {
         this.#handleData()
       }
     } else if (attribute === 'loading') {
+      if (this.isConnected && this.loading === 'lazy') {
+        this.#observer.observe(this)
+      }
       // Loading mode changed to Eager after attached so replace element.
       if (this.isConnected && oldVal !== 'eager' && this.loading === 'eager') {
         this.#handleData()

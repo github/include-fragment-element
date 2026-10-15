@@ -492,6 +492,27 @@ suite('include-fragment-element', function () {
     assert(div.firstChild.loading, 'eager')
   })
 
+  test('switching a connected element to lazy observes it until visible', async function () {
+    const div = document.createElement('div')
+    div.hidden = true
+    const elem = document.createElement('include-fragment')
+    div.append(elem)
+    document.body.append(div)
+    elem.loading = 'lazy'
+    elem.src = '/hello'
+    let loads = 0
+    elem.addEventListener('loadstart', () => loads++)
+
+    await new Promise(resolve => setTimeout(resolve, 50))
+    assert.equal(loads, 0)
+
+    const replaced = when(elem, 'include-fragment-replaced')
+    div.hidden = false
+    await replaced
+    assert.equal(loads, 1)
+    assert.equal(div.querySelector('#replaced').textContent, 'hello')
+  })
+
   test('loading=lazy loads if already visible on page', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
