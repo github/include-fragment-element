@@ -492,24 +492,39 @@ suite('include-fragment-element', function () {
     assert(div.firstChild.loading, 'eager')
   })
 
-  test('switching a connected element to lazy observes it until visible', async function () {
+  test('switching a connected element to lazy observes its existing source until visible', async function () {
     const div = document.createElement('div')
     div.hidden = true
     const elem = document.createElement('include-fragment')
-    div.append(elem)
-    document.body.append(div)
-    elem.loading = 'lazy'
     elem.src = '/hello'
-    let loads = 0
-    elem.addEventListener('loadstart', () => loads++)
+    let replacements = 0
+    elem.addEventListener('include-fragment-replace', event => {
+      replacements++
+      if (replacements === 1) event.preventDefault()
+    })
+    div.append(elem)
+    const loaded = when(elem, 'loadend')
+    document.body.append(div)
+    await loaded
+    assert.equal(replacements, 1)
+    elem.loading = 'lazy'
 
-    await new Promise(resolve => setTimeout(resolve, 50))
-    assert.equal(loads, 0)
+    await new Promise(resolve => {
+      const observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => !entry.isIntersecting)) {
+          observer.disconnect()
+          resolve()
+        }
+      })
+      observer.observe(elem)
+    })
+    await new Promise(resolve => requestAnimationFrame(resolve))
+    assert.equal(replacements, 1)
 
     const replaced = when(elem, 'include-fragment-replaced')
     div.hidden = false
     await replaced
-    assert.equal(loads, 1)
+    assert.equal(replacements, 2)
     assert.equal(div.querySelector('#replaced').textContent, 'hello')
   })
 
