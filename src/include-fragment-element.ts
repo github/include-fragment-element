@@ -77,15 +77,15 @@ export class IncludeFragmentElement extends HTMLElement {
   #busy = false
 
   attributeChangedCallback(attribute: string, oldVal: string | null): void {
+    if (this.isConnected && this.loading === 'lazy' && this.src) {
+      this.#observer.observe(this)
+    }
     if (attribute === 'src') {
       // Source changed after attached so replace element.
       if (this.isConnected && this.loading === 'eager') {
         this.#handleData()
       }
     } else if (attribute === 'loading') {
-      if (this.isConnected && this.loading === 'lazy') {
-        this.#observer.observe(this)
-      }
       // Loading mode changed to Eager after attached so replace element.
       if (this.isConnected && oldVal !== 'eager' && this.loading === 'eager') {
         this.#handleData()
@@ -103,7 +103,7 @@ export class IncludeFragmentElement extends HTMLElement {
     if (this.src && this.loading === 'eager') {
       this.#handleData()
     }
-    if (this.loading === 'lazy') {
+    if (this.loading === 'lazy' && this.src) {
       this.#observer.observe(this)
     }
   }
@@ -143,7 +143,7 @@ export class IncludeFragmentElement extends HTMLElement {
           const {target} = entry
           this.#observer.unobserve(target)
           if (!(target instanceof IncludeFragmentElement)) return
-          if (target.loading === 'lazy') {
+          if (target.loading === 'lazy' && target.src) {
             this.#handleData()
           }
         }

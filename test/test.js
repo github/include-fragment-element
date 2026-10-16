@@ -513,6 +513,35 @@ suite('include-fragment-element', function () {
     assert.equal(div.querySelector('#replaced').textContent, 'hello')
   })
 
+  for (const mode of ['changed', 'initial', 'removed source']) {
+    test(`lazy loading waits for a later source (${mode})`, async function () {
+      const elem = document.createElement('include-fragment')
+      elem.textContent = 'loading'
+      if (mode !== 'changed') elem.loading = 'lazy'
+      if (mode === 'removed source') elem.src = '/hello'
+      document.body.append(elem)
+      if (mode === 'changed') elem.loading = 'lazy'
+      if (mode === 'removed source') elem.removeAttribute('src')
+
+      await new Promise(resolve => {
+        const observer = new IntersectionObserver(entries => {
+          if (entries.some(entry => entry.isIntersecting)) {
+            observer.disconnect()
+            resolve()
+          }
+        })
+        observer.observe(elem)
+      })
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      assert.notOk(elem.classList.contains('is-error'))
+
+      const replaced = when(elem, 'include-fragment-replaced')
+      elem.src = '/hello'
+      await replaced
+      assert.equal(document.querySelector('#replaced').textContent, 'hello')
+    })
+  }
+
   test('loading=lazy loads if already visible on page', async function () {
     const div = document.createElement('div')
     div.innerHTML = '<include-fragment loading="lazy" src="/hello">loading</include-fragment>'
